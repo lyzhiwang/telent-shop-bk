@@ -80,24 +80,24 @@ export default {
         {
           prop: 'name',
           label: '角色名称'
-        },
-        {
-          prop: 'state',
-          label: '角色状态',
-          isCustomize: true
-        },
-        {
-          prop: 'tip',
-          label: '备注',
-          width: 100,
-          over: true
-        },
-        {
-          prop: 'action',
-          label: '操作',
-          width: 160,
-          isCustomize: true
         }
+        // {
+        //   prop: 'state',
+        //   label: '角色状态',
+        //   isCustomize: true
+        // },
+        // {
+        //   prop: 'tip',
+        //   label: '备注',
+        //   width: 100,
+        //   over: true
+        // },
+        // {
+        //   prop: 'action',
+        //   label: '操作',
+        //   width: 160,
+        //   isCustomize: true
+        // }
       ],
       roleList: [],
       listLoading: true,

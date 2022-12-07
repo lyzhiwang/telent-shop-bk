@@ -67,13 +67,13 @@ service.interceptors.response.use(
     if (isDEBUG) console.log(response)
     if (res) {
       // 提示信息
-      if (res.message) {
-        Message({
-          message: res.message,
-          type: res.code === 0 ? 'success' : 'error',
-          duration: 5 * 1000
-        })
-      }
+      // if (res.message) {
+      //   Message({
+      //     message: res.message,
+      //     type: res.code === 0 ? 'success' : 'error',
+      //     duration: 5 * 1000
+      //   })
+      // }
       if (res.code === 0) { // code 为0请求正常
         return res
       } else {
