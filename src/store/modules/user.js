@@ -7,6 +7,7 @@ import { setAreasVersion, getAreasVersion, removeAreaStorage } from '@/utils/sto
 
 const state = {
   userId: '',
+  create_admin_user_id: '', //上级代理id
   token: getToken(),
   roles: [],
   name: '',
@@ -26,6 +27,7 @@ const state = {
   tip: [],
   // 代理商信息
   agentInfo: {},
+  shop_info: {}, // 商家信息
   dashboardData: {}
 }
 
@@ -59,6 +61,9 @@ const mutations = {
   },
   SET_USER_ID: (state, userId) => {
     state.userId = userId
+  },
+  SET_CREATE_ADMIN_USER_ID: (state, userId) => {
+    state.create_admin_user_id = userId
   },
   SET_ACCOUNT: (state, account) => {
     state.account = account
@@ -98,6 +103,9 @@ const mutations = {
   },
   SET_DASHBOARD: (state, res) => {
     state.dashboardData = res
+  },
+  SET_SHOP_INFO: (state, res) => {
+    state.shop_info = res
   }
 
 }
@@ -149,11 +157,15 @@ const actions = {
           removeAreaStorage()
           setAreasVersion(version)
         }
-
+        // 商家保存商家信息
+        if (data.roles[0]===5) {
+          commit('SET_SHOP_INFO', data.shop_info)
+        }
         commit('SET_IS_RESET', data.is_reset)
         commit('SET_REVIEW', data.review)
         commit('SET_NAME', data.name)
         commit('SET_USER_ID', data.userId)
+        commit('SET_CREATE_ADMIN_USER_ID', data.create_admin_user_id)
         commit('SET_AVATAR', data.avatar)
         commit('SET_MONEY', data.accountBalance)
         commit('SET_LASTLOGINTIME', data.lastLoginTime)
@@ -190,7 +202,7 @@ const actions = {
   // 登出
   LogOut({ commit, state }) {
     return new Promise((resolve, reject) => {
-      apiBtn('UserLogout').then(() => {
+      apiBtn('AdminLogout').then(() => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
         removeToken()

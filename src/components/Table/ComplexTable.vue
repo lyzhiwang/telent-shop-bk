@@ -33,7 +33,7 @@
             </template>
           </el-table-column>
           <!-- 筛选框 -->
-          <el-table-column v-if="hasSelection" type="selection" width="35" align="center" />
+          <el-table-column v-if="hasSelection" type="selection" width="50" align="center" />
           <!-- 表格 -->
           <el-table-column
             v-for="(item,index) in tableHeader"

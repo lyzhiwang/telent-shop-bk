@@ -34,27 +34,28 @@ const mutations = {
 
 const actions = {
   // 获取所有地区
-  GetArea({ commit }) {
+  GetArea ({ commit }) {
     return new Promise((resolve, reject) => {
       const storage = getAreaStorage()
       if (storage && storage.length) {
-        for (const item of storage) {
-          if (item.children && item.children.length) {
-            item.children = []
-          }
-        }
+        // for (const item of storage) {
+        //   if (item.children && item.children.length) {
+        //     item.children = []
+        //   }
+        // }
         commit('SET_LIST', storage)
         resolve()
       } else {
+        console.log('11111')
         apiBtn('AreaIndex')
           .then(res => {
             const list = res.data
             setAreaStorage(list)
-            for (const item of list) {
-              if (item.children && item.children.length) {
-                item.children = []
-              }
-            }
+            // for (const item of list) {
+            //   if (item.children && item.children.length) {
+            //     item.children = []
+            //   }
+            // }
             commit('SET_LIST', list)
             resolve()
           })

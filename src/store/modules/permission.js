@@ -99,7 +99,10 @@ const state = {
   btnPage: {
     UserInfo: '/user/info',
     AdminStore: '/permi/admin/create',
-    AdminUpdate: '/permi/admin/edit'
+    AdminUpdate: '/permi/admin/edit',
+    ActivityStore: '/activity/act/create',
+    TypeIndex: '/activity/media',
+    SignIndex: '/activity/sign'
   },
   permissionBtnType: {
   }

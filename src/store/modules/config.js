@@ -2,7 +2,7 @@ import { apiBtn } from '@/api/default'
 
 const state = {
   // 是否上传到七牛云：0本地，1七牛
-  auto_open: 0,
+  auto_open: 1,
   // 服务器图片上传地址
   local_url: process.env.VUE_APP_BASE_API + '/upload',
   upload_url: '', // 上传地址
@@ -15,7 +15,7 @@ const state = {
   wx_bind_location: 'https://qr.zwmstk.cn/api/wechat/auth'// 绑定微信跳转链接
 }
 const mutations = {
-  SET_IMG_TOKEN(state, token) {
+  SET_IMG_TOKEN (state, token) {
     state.imgToken = token
   },
   SET_AUDIO_TOKEN(state, token) {
@@ -25,9 +25,9 @@ const mutations = {
     state.roleList = list
   },
   // 设置上传参数
-  SET_UPLOAD(state, upload) {
-    state.auto_open = upload.open ? Number(upload.open) : 0
-    state.upload_url = upload.open ? upload.qiniu_url : upload.local_url
+  SET_UPLOAD (state, upload) {
+    // state.auto_open = upload.open ? Number(upload.open) : 0
+    state.upload_url = state.auto_open ? upload.qiniu_url : upload.local_url
     state.local_url = upload.local_url
   }
 }
@@ -56,7 +56,7 @@ const actions = {
       if (params && !state.audioToken) {
         apiBtn('QiniuToken', { ...params })
           .then(res => {
-            commit('SET_IMG_TOKEN', res.data.img)
+            commit('SET_IMG_TOKEN', res.data.qiniuToken)
             commit('SET_AUDIO_TOKEN', res.data.audio)
             resolve(resolve)
           })

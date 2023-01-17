@@ -29,12 +29,13 @@ import has from '@/utils/btnAuthority'
 // 带有灰色底的标题
 import Tip from '@/components/Tool/Tip'
 import Pagination from '@/components/Pagination'
+import _ from 'lodash'
 
 // 注册全局过滤器
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 })
-
+Vue.prototype._ = _
 Vue.use(VueClipboard)
 Vue.use(VideoPlayer)
 Vue.use(ElementUI, { locale })

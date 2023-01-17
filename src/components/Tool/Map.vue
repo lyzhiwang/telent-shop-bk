@@ -24,7 +24,7 @@ export default {
       type: Object,
       default() {
         return {
-          location: '' // 坐标
+          location: '', // 坐标
         }
       }
     },
@@ -44,7 +44,7 @@ export default {
       qq: null
     }
   },
-  mounted() {
+  mounted () {
     // 加载地图依赖脚本
     TMap(this.key).then(qq => {
       this.qq = qq
@@ -76,6 +76,10 @@ export default {
         this.setMarker(event.latLng)
       })
     })
+    if (this.form.shop_address) {
+      this.address = this.form.shop_address
+      this.geocoder.getLocation(this.address)
+    }
   },
   methods: {
     updateForm(key, val) {
@@ -98,10 +102,10 @@ export default {
     },
     // 确认使用所选商家位置
     submit() {
-      // if (!this.form.address) {
-      //   this.$message('请填写商家位置')
-      //   return
-      // }
+      if (!this.form.shop_address) {
+        this.$message('请填写商家位置')
+        return
+      }
       if (!this.form.location.lat) {
         this.$message('请选择商家位置')
         return

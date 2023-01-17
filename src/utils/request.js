@@ -7,7 +7,6 @@ import { getToken } from '@/utils/auth'
 const resposeCode = {
   '301': '请求需要重定向',
   '400': '请求错误',
-  '401': '请求受保护，需要填写用户名字/密码',
   '403': '资源不可用',
   '404': '无法找到指定资源',
   '405': '请求方法错误',
@@ -84,8 +83,7 @@ service.interceptors.response.use(
         if (res.code === 700003) {
           store.dispatch('user/resetToken')
           location.reload()
-        }
-        if (res.code === 700004) {
+        }else if (res.code === 700004) {
           MessageBox.alert(
             '页面超时，请重新登录',
             '确定登出', {
@@ -98,6 +96,12 @@ service.interceptors.response.use(
               }
             }
           )
+        } else {
+           Message({
+            message: res.message,
+            type: 'error',
+            duration: 5 * 1000
+          })
         }
         return Promise.reject(res)
       }

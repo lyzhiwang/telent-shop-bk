@@ -10,17 +10,22 @@
         <!-- 基础 所有-->
         <tip title="基础信息" />
         <user-base ref="userBase" :form="form" @change="changeForm" />
-        <template v-if="checkRole(['admin','operation'])">
-          <!-- 基础 代理门店-->
-          <user-base-agent v-if="checkRole(['agent','store'],form.role_id)" ref="userBaseAgent" :area-list="areaList" :form="form" @change="changeForm" />
+        <template v-if="form.role_id===3">
+          <!-- 基础 oem-->
+          <user-base-oem ref="userBaseOem" :area-list="areaList" :form="form" @change="changeForm" />
           <!-- 基础 运营-->
-          <user-base-operation v-if="checkRole(['operation'],form.role_id)" ref="userBaseOperation" :form="form" @change="changeForm" />
+          <!-- <user-base-operation ref="userBaseOperation" :form="form" @change="changeForm" /> -->
         </template>
-        <!-- 特殊功能 -->
-        <template v-if="checkRole(['agent','store'],form.role_id)">
-          <tip title="附加功能" />
-          <user-features ref="userFeatures" :form="form" @change="changeForm" />
+
+        <template v-if="form.role_id===4">
+        <!-- 代理 -->
+          <user-base-agent ref="userBaseAgent" :area-list="agentAreaList" :form="form" @change="changeForm"></user-base-agent>
         </template>
+        <template v-if="form.role_id===5">
+        <!-- 商家 -->
+          <user-base-shop  ref="userBaseShop" :form="form" @change="changeForm"></user-base-shop>
+        </template>
+
 
         <div style="padding-left:251px">
           <el-button type="primary" @click="submit">提交</el-button>
@@ -32,54 +37,67 @@
 
 <script>
 import { getAreaStorage } from '@/utils/storage'
-
+import { mapState } from "vuex";
 import UserBase from './UserBase.vue'
+import UserBaseOem from './UserBaseOem.vue'
 import UserBaseAgent from './UserBaseAgent.vue'
+import UserBaseShop from "./UserBaseShop.vue";
 import UserBaseOperation from './UserBaseOperation.vue'
-import UserFeatures from './UserFeatures.vue'
 
 export default {
   name: 'Base',
-  components: { UserBase, UserBaseAgent, UserBaseOperation, UserFeatures },
+  components: { UserBase, UserBaseOem, UserBaseAgent, UserBaseShop, UserBaseOperation },
   data() {
     return {
       form: {
         // 基础字段
         username: '', // 用户名
-        password: '', // 密码
-        remark: '', // 备注
+        password: 'zwwl123456', // 密码
+        remark: '测试', // 备注
         role_id: '', // 角色
         area: '', // 地区
         date: '', // 使用时间
-        account: '', // 账号数量
-        operator_service: '', // 操作客服
-        market_service: '', // 市场客服
         // 客服填写
-        name: '', // 商家姓名/运营名称
-        phone: '', // 商家电话/运营电话
-        service_code: { path: '' }, // 商家二维码/运营二维码
-        // 附加功能
-        customer_video: false, // 霸屏广告
-        is_national: false, // 全国红包
-        is_open_card: false, // 红包卡劵
-        is_open_authorization: false, // 吸粉
-        custom_name: '', // 自定义名称
-        custom_icon: { path: '' }, // 自定义logo
-        is_weapp: false, // 是否开启小程序
-        weapp_image: { path: '' }// 小程序码
-      }
+        project_name: '', // 项目名称
+        logo: '', // 项目logo
+        is_trusteeship: 0, // 是否托管(针对商家)
+        shop_name: '', // 商家名称
+        shop_phone: '', // 商家电话
+        shop_address: '', // 商家地址
+        activity_sing_money: 0 // 活动报名金额
+      },
+      areaList: [],
+      agentAreaList: [] // 代理区域
     }
   },
   computed: {
+    ...mapState({
+      userId: state => state.user.userId,
+      role_id: state => state.user.roles[0]
+    })
   },
-  created() {
-    this.$store.dispatch('config/GetRoleList', { route: 'agent' })
+  created () {
+    if (this.role_id ===3) {
+      this.apiBtn('GetOemArea', { id: this.userId }).then(res => {
+        let list = [...res.data]
+        list.map(v => {
+          v.disabled = true
+          v.children.map(i => {
+            i.disabled = true
+          })
+        })
+        this.agentAreaList = list
+      })
+    }
+
+    this.$store.dispatch('config/GetRoleList')
       .then(res => {
         this.$store.dispatch('area/GetArea')
           .then(res => {
             this.getAdminInfo()
             // 获取地区列表
             this.areaList = getAreaStorage()
+            console.log('this.areaList', this.areaList)
           })
       })
   },
@@ -92,12 +110,34 @@ export default {
       })
     },
     // 提交数据
-    submit() {
+    submit () {
       if (this.validateForm()) {
-        this.apiBtn(this.form.id ? 'AdminUpdate' : 'AdminStore', this.formateData({ ...this.form })).then((res) => {
-          console.log(res)
+        if (this.form.role_id === 3) {
+          delete this.form.is_trusteeship
+          delete this.form.shop_name
+          delete this.form.shop_address
+          delete this.form.activity_sing_money
+        }
+        if (this.form.role_id === 4) {
+          delete this.form.date
+          delete this.form.logo
+          delete this.form.project_name
+          delete this.form.is_trusteeship
+          delete this.form.shop_name
+          delete this.form.shop_address
+          delete this.form.activity_sing_money
+        }
+        if (this.form.role_id === 5) {
+            delete this.form.date
+            delete this.form.area
+            delete this.form.logo
+            delete this.form.project_name
+        }
+        this.apiBtn(this.form.id ? 'AdminUpdate' : 'AdminStore', { ...this.form }).then((res) => {
+          this.$router.go(-1)
         })
       }
+
     },
     // 子组件修改值
     changeForm(obj) {
@@ -105,7 +145,7 @@ export default {
     },
     // 校验
     validateForm() {
-      const list = ['userBase', 'userBaseAgent', 'userBaseOperation', 'userFeatures']
+      const list = ['userBase', 'userBaseOem', 'userBaseAgent', 'userBaseShop']
       let result = true
       for (let i = 0; i < list.length; i++) {
         const name = list[i]

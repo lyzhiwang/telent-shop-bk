@@ -43,6 +43,7 @@
 <script>
 import { validatMixRegular, validatPwdEasy } from '@/utils/validate'
 import { Random } from '@/utils/index.js'
+import { mapState } from "vuex";
 
 export default {
   name: 'UserBase',
@@ -89,6 +90,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      roles: state => state.user.roles[0]
+    }),
     id() {
       return this.$route.query.id
     },
@@ -101,9 +105,26 @@ export default {
       return this.id ? '不修改密码则留空' : '设置密码'
     },
     // 角色列表
-    roleList: function() {
-      const list = this.$store.state.config.roleList
-      return list
+    roleList: function () {
+      let list = this.$store.state.config.roleList
+      console.log('list', list)
+      let newArr  = []
+      switch (this.roles) {
+        case 1: // admin
+          newArr = list.filter(v=> {return v.id === 2})
+          break;
+        case 2: // 运营
+          newArr = list.filter(v=> {return v.id === 3})
+          break;
+        case 3: // oem
+          newArr = list.filter(v=> {return [4,7].includes(v.id)})
+          break;
+        case 4: // 代理
+          newArr = list.filter(v=> {return v.id === 5})
+          break;
+      }
+      console.log('newArr', newArr)
+      return newArr
     }
   },
   created() {

@@ -80,7 +80,7 @@ export default {
         {
           prop: 'name',
           label: '角色名称'
-        }
+        },
         // {
         //   prop: 'state',
         //   label: '角色状态',
@@ -92,12 +92,12 @@ export default {
         //   width: 100,
         //   over: true
         // },
-        // {
-        //   prop: 'action',
-        //   label: '操作',
-        //   width: 160,
-        //   isCustomize: true
-        // }
+        {
+          prop: 'action',
+          label: '操作',
+          width: 160,
+          isCustomize: true
+        }
       ],
       roleList: [],
       listLoading: true,
@@ -180,7 +180,8 @@ export default {
     },
     updateRoleList(res) {
       // 修改角色后更新列表
-      modifyArrayById(this.roleList, res)
+      this.loadList()
+      // modifyArrayById(this.roleList, res)
     },
     setAuthority(res) {
       // tree修改后同步权限

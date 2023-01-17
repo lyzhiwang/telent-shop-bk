@@ -43,7 +43,7 @@
 
       <!-- 角色 -->
       <template v-slot:role="props">
-        <span>{{ roleOption[props.scope.row.role_id] }}</span>
+        <span>{{props.scope.row.role.name}}</span>
       </template>
 
       <!-- 地区 -->
@@ -79,7 +79,7 @@
 
       <!-- 有效期 -->
       <template v-slot:date="props">
-        <span v-if="props.scope.row.start_time > 0">{{ props.scope.row.start_time | parseTime('{y}-{m}-{d}') }}</span><span v-if="props.scope.row.end_time > 0">~{{ props.scope.row.end_time | parseTime('{y}-{m}-{d}') }}</span>
+        <span v-if="props.scope.row.start_time">{{ props.scope.row.start_time }}</span><span v-if="props.scope.row.end_time">~{{ props.scope.row.end_time }}</span>
       </template>
 
       <!-- 门店 -->
@@ -145,7 +145,7 @@ export default {
       ],
       agentSelect: [], // 下拉选择框、代理
       selectList: [
-        { id: 9, username: '代理商', children: [] }
+
       ],
       selectProps: {
         value: 'id',
@@ -173,13 +173,14 @@ export default {
       return this.$store.state.config.roleList
     },
     // 角色
-    roleOption: function() {
-      const res = {}
-      for (const item of this.roleList) {
-        res[Number(item.id)] = item.name
-      }
-      return res
-    },
+    // roleOption: function (id) {
+    //   console.log('id111111', id)
+    //   const res = {}
+    //   for (const item of this.roleList) {
+    //     res[Number(item.id)] = item.name
+    //   }
+    //   return res
+    // },
     tableHeader: function() {
       const header = [
         { prop: 'id', label: 'ID', width: 70, sortable: true },
@@ -226,23 +227,15 @@ export default {
     }
   },
   created() {
-    this.getSelectList()
     this.$store.dispatch('config/GetRoleList')
       .then(res => {
         this.$store.dispatch('area/GetArea')
           .then(res => {
-            this.initSearch()
+            this.search()
           })
       })
   },
   methods: {
-    // 初始化搜索
-    initSearch() {
-      this.formSearch = { ...this.$store.state.search.agent.formSearch }
-      this.otherSearch = { ...this.$store.state.search.agent.otherSearch }
-      this.agentSelect = [...this.$store.state.search.agent.agentSelect]
-      this.getList(this.$store.state.search.agent.pagination)
-    },
     // 备注：切换input与span
     focusRemark(row) {
       // 代理商创建门店时，可填写备注，不能修改备注
@@ -329,31 +322,15 @@ export default {
       }
       if (!params.agent_id) delete params.agent_id
       this.apiBtn('AdminIndex', params).then(res => {
-        // 增加字段isRemark：是否修改备注
-        for (var item of res.data) {
-          item['isRemark'] = false
-        }
-        this.tableData = res.data
-        this.pagination.total = res.meta.total
-        if (this.isInit) this.isInit = false
+        this.tableData = res.data.list
+        this.pagination.total = res.data.total
       })
     },
     // 获取下拉选择框中的代理商列表
     getSelectList() {
-      if (this.checkRole(['admin', 'operation', 'account'])) {
-        for (const item of this.selectList) {
-          const params = {
-            role_id: item.id,
-            size: 100,
-            page: 1
-          }
-          if (!item.children.length) {
-            this.apiBtn('AdminIndex', params).then(res => {
-              item.children = res.data.list
-            })
-          }
-        }
-      }
+      this.apiBtn('AdminIndex', this.formSearch).then(res => {
+        item.children = res.data.list
+      })
     },
     // 是否显示审核按钮
     showCheck(row) {

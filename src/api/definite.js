@@ -51,6 +51,20 @@ export function callback(params) {
   })
 }
 
+// 地图的脚本
+export function TMap(key) {
+    return new Promise(function(resolve, reject) {
+        window.init = function() {
+            resolve(window.qq) // 注意这里
+        }
+        var script = document.createElement('script')
+        script.type = 'text/javascript'
+        script.src = 'https://map.qq.com/api/js?v=2.exp&callback=init&key=' + key
+        script.onerror = reject
+        document.head.appendChild(script)
+    })
+}
+
 // 公众号菜单
 // // 查询菜单
 // export function queryMenu(params) {

@@ -208,11 +208,11 @@ export default {
     },
     // 获取列表
     getList() {
-      this.apiBtn('UploadIndex', { page: this.page, type: this.type, size: this.pageSize })
-        .then(res => {
-          this.list = res.data
-          this.total = res.meta.total
-        })
+      // this.apiBtn('UploadIndex', { page: this.page, type: this.type, size: this.pageSize })
+      //   .then(res => {
+      //     this.list = res.data
+      //     this.total = res.meta.total
+      //   })
     },
     // 翻页
     lastPage() {

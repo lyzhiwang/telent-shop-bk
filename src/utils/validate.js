@@ -134,3 +134,9 @@ export function validateEdit(str) {
   const reg = /(\u7ea2\u5305)|(\u8f6c\u53d1)|(\u5206\u4eab)|(\u670b\u53cb\u5708)+/
   return reg.test(str)
 }
+
+// 校验抖音URL
+export function validateDouYinURL(textval) {
+  const urlregex = /^(https):\/\/(v.douyin.com)(\/([a-zA-Z0-9.,?'\\+\/+&%$#=~_-]+))$/
+  return urlregex.test(textval)
+}

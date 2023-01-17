@@ -5,16 +5,15 @@
       ref="tinymce"
       v-model="html"
       :class="['tinymce-textarea', disabled ? 'disabled' : '']"
-    />
+    ></textarea>
   </div>
 </template>
 
 <script>
 import { toolbar_default, toolbar_easy } from './toolbar'
 import { plugins_default, plugins_easy } from './plugins'
-import templates from './templates'
 import { getToken } from '@/utils/auth'
-// import request from '@/utils/request'
+import axios from 'axios'
 
 export default {
   name: 'Tinymce',
@@ -33,7 +32,7 @@ export default {
     },
     rParams: {
       type: Object,
-      default() {}
+      default: null
     }
   },
   data() {
@@ -41,9 +40,13 @@ export default {
       tinymceId: 'tinymceId-' + new Date().getMilliseconds() + Math.ceil(Math.random() * 10),
       hasInit: false,
       hasChange: false,
-      templates: templates,
+      templates: [],
       size: 1024 * 2,
-      type: 4 // 上传文件类型
+      type: 4, // 上传文件类型
+      newImgUrl: [], // 存储上传的图片
+      loading: null, // loading加载弹框
+      loadingImg: {}, // 用于校验图片是否上传
+      checkImgRepet: []// 用于校验图片是否重复
     }
   },
   computed: {
@@ -55,6 +58,7 @@ export default {
       if (this.mode === 'default') return plugins_default
       else return plugins_easy
     },
+
     config: function() {
       // 上传配置
       return this.$store.state.config
@@ -96,16 +100,35 @@ export default {
       this.setMode()
       const self = window.tinyMCE.activeEditor.getContent()
       if (self !== this.html) this.setContent()
+    },
+    loadingImg: {
+      deep: true,
+      handler(newV) {
+        let res = false
+        for (const item in this.loadingImg) {
+          res = res && item
+        }
+        if (!res) {
+          this.$emit('change', this.replaceImage(this.html), this.rParams)
+          this.setContent()
+          setTimeout(() => {
+            this.loading.close()
+          }, 2000)
+        }
+      }
     }
   },
   mounted() {
-    if (!this.token && this.mode === 'default') {
-      this.$store.dispatch('config/GetQiniuToken').then(() => {
-        this.initTinymce()
+    if (this.mode === 'default') {
+      axios.get('https://common.zwwltkl.com/tinymce/template.json?' + new Date()).then(res => {
+        this.templates = res.data
+        if (!this.token) {
+          this.$store.dispatch('config/GetQiniuToken', { file_type: 'img' }).then(() => {
+            this.initTinymce()
+          })
+        } else this.initTinymce()
       })
-    } else {
-      this.initTinymce()
-    }
+    } else this.initTinymce()
   },
   destroyed() {
     // 为使TinyMCE下次能正常初始化，必须销毁
@@ -116,7 +139,7 @@ export default {
       const that = this
       window.tinymce.init({
         selector: '#' + this.tinymceId,
-        width: 750,
+        width: 500,
         autoresize_overflow_padding: 20,
         autoresize_bottom_margin: 50,
         toolbar: this.toolbar,
@@ -127,7 +150,15 @@ export default {
         autosave_ask_before_unload: false, // 关闭当前窗口时，提示用户建议他们有未保存的更改
         // autosave_interval: '20s', // 保存到本地存储之间应等待的时间
         // autosave_restore_when_empty: true, // 当内容初始值为空时，是否自动恢复存储在本地存储中的内容
-        paste_data_images: false, // 是否禁止用户粘贴图片(false为禁止)
+        // https://www.jianshu.com/p/b9f3e566a9ce
+        powerpaste_word_import: 'merge', // 参数可以是propmt, merge, clear，效果自行切换对比
+        powerpaste_html_import: 'merge', // propmt, merge, clear
+        powerpaste_allow_local_images: true,
+        paste_data_images: true, // 是否禁止用户粘贴图片(false为禁止)
+        // 允许指定在WebKit中粘贴时要保留的样式
+        paste_webkit_styles: 'all',
+        // 允许指定在粘贴 MS Word 和 类似Office套件产品中的内容时要保留的样式。
+        paste_retain_style_properties: 'all',
         font_formats: `
           微软雅黑=微软雅黑;
           宋体=宋体;
@@ -153,7 +184,7 @@ export default {
         // 引入外部CSS
         content_css: [
           'https://res.wx.qq.com/open/libs/weui/1.1.2/weui.min.css',
-          'https://common.zwwltkl.com/tinymce/tinycss.css?0917'
+          'https://common.zwwltkl.com/tinymce/tinycss.css?0323'
         ],
         // 模板
         templates: this.templates,
@@ -167,17 +198,10 @@ export default {
             this.hasChange = true
             this.$emit('change', editor.getContent(), this.rParams)
           })
-          editor.on('Change', () => {
-            this.$emit('blur', editor.getContent(), this.rParams)
-          })
         },
-        // 允许指定在WebKit中粘贴时要保留的样式
-        paste_webkit_styles: 'all',
-        // 允许指定在粘贴 MS Word 和 类似Office套件产品中的内容时要保留的样式。
-        paste_retain_style_properties: 'all',
         // 文件管理 相关配置字段
         filery_dialog_height: '402px',
-        filery_api_url: process.env.VUE_APP_BASE_API + '/upload', // 获取文件的url
+        filery_api_url: (process.env.NODE_ENV === 'development' ? process.env.VUE_APP_BASE_API : window.location.protocol + `//api.` + window.location.host + '/api') + '/upload', // 获取文件的url
         filery_api_token: 'Bearer ' + getToken(), // 获取用户的token 本地token
         filery_upload_api_url: this.config.upload_url, // 上传地址
         filery_upload_params: this.params, // 上传参数
@@ -222,6 +246,66 @@ export default {
           }
           xhr.send(formData)
         },
+        //  https://www.jianshu.com/p/1e910124eacf
+        // 处理url替换
+        urlconverter_callback: (url, node, on_save, name) => {
+          const assignUrl = [this.$store.state.config.domain, 'https://static.zwmstk.cn', 'https://dou.zwwltkl.com/', 'https://static.lyskedas.cn', 'https://common.zwwltkl.com/']// 设置白名单
+          // oem七牛云的白名单
+          if (process.env.VUE_APP_IS_OEM === '1') {
+            let href = window.location.origin
+            const arr = href.split('.')
+            if (arr[0]) href = href.replace(arr[0], arr[0].split('//')[0] + '//static')
+            assignUrl.push(href)
+          }
+
+          let isInnerUrl = false // 默认不是内部链接
+          try {
+            assignUrl.forEach(item => {
+              if (url.indexOf(item) > -1) {
+                isInnerUrl = true
+                throw new Error('EndIterate')
+              }
+            })
+          } catch (e) {
+            if (e.message !== 'EndIterate') throw e
+          }
+          if (!isInnerUrl && (name === 'style' || (name === 'src' && node === 'img'))) {
+            // 打开加载弹框
+            that.loading = that.$loading({
+              lock: true,
+              text: '文章图片上传中，请稍后',
+              spinner: 'el-icon-loading',
+              background: 'rgba(0, 0, 0, 0.7)'
+            })
+            // 兼容部分图片不带https头，手动校验添加
+            const urlregex = /^(https?):.*/
+            if (!urlregex.test(url)) url = 'https:' + url
+
+            that.$set(that.loadingImg, url, true)
+            if (!that.checkImgRepet.includes(url)) { // 避免重复上传
+              that.checkImgRepet.push(url)
+              // 上传图片
+              this.apiBtn('QnFetch', { url }).then(res => {
+                this.newImgUrl.push({ oriUrl: url, filePath: res.data })
+                that.$set(that.loadingImg, url, false)
+              }).catch(() => {
+                // 上传失败移除验证重复以及loading加载字段
+                delete that.loadingImg[url]
+                that.checkImgRepet.splice(that.checkImgRepet.indexOf(url), 1)
+              })
+            } else {
+              // 查询对应图片
+              this.newImgUrl.map((item) => {
+                if (url === item.oriUrl) {
+                  url = item.filePath
+                  that.$set(that.loadingImg, url, false)
+                }
+              })
+            }
+          }
+          // 返回替换后的url
+          return url
+        },
         setup: function(editor) {
           editor.on('change', function(e) {
             that.$emit('change', window.tinyMCE.activeEditor.getContent(), this.rParams)
@@ -247,9 +331,7 @@ export default {
     setMode() {
       if (this.hasInit) {
         this.$nextTick(() =>
-          window.tinymce.activeEditor.setMode(
-            this.disabled ? 'readonly' : 'design'
-          )
+          window.tinymce.editors[this.tinymceId].setMode(this.disabled ? 'readonly' : 'design')
         )
       }
     },
@@ -265,9 +347,11 @@ export default {
     handleUploadError(file) {
       return new Promise((resolve, reject) => {
         // 1.清空原来的失效token
-        this.$store.commit('config/SET_IMG_TOKEN', '')
+        this.$store.commit('config/SET_QINIU_STATE', { name: 'imgToken', value: '' })
+        this.$store.commit('config/SET_QINIU_STATE', { name: 'audioToken', value: '' })
         // 2.重新请求token
-        this.$store.dispatch('config/GetQiniuToken')
+        this.$store
+          .dispatch('config/GetQiniuToken', { file_type: 'img' })
           .then(res => {
             resolve(res)
             // 3.重新上传图片
@@ -295,6 +379,31 @@ export default {
             return
           })
       })
+    },
+    // 替换图片
+    replaceImage(content) {
+      if (!this.newImgUrl.length) return content // 匹配并替换 img中src图片路径
+      content = content.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/gi, (mactch, capture) => {
+        let current = ''
+        this.newImgUrl.forEach(item => {
+          if (capture === item.oriUrl) {
+            current = item.filePath
+          }
+        })
+        current = current || capture
+        return mactch.replace(/src=[\'\"]?([^\'\"]*)[\'\"]?/i, 'src=' + current)
+      }) // 匹配并替换 任意html元素中 url 路径
+      content = content.replace(/url\(['"](.+)['"]\)/gi, (mactch, capture) => {
+        let current = ''
+        this.newImgUrl.forEach(item => {
+          if (capture === item.oriUrl) {
+            current = item.filePath
+          }
+        })
+        current = current || capture
+        return mactch.replace(/url\((['"])(.+)(['"])\)/i, `url($1${current}$3) `)
+      })
+      return content
     }
   }
 }

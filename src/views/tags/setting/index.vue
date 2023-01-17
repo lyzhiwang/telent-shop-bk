@@ -124,6 +124,7 @@ export default {
       }).then(() => {
         this.apiBtn('TagDestory', { id: row.id }).then(res => {
           this.$message.success('删除成功!')
+          this.getList()
         })
       }).catch(() => {
 
