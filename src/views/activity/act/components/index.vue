@@ -115,7 +115,7 @@
            <!-- 代理帮商家创建任务 -->
           <el-form-item label="选择商家" v-if="roles===4" prop="create_admin_user_id">
             <el-select v-model="form.create_admin_user_id" placeholder="请选择任务归属商家">
-              <el-option v-for="(item,index) in userList" :key="index" :label="`${item.username}(id:${item.revenue.id})`" :value="item.revenue.id"></el-option>
+              <el-option v-for="(item,index) in userList" :key="index" :label="`${item.username}(id:${item.id})`" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="商家名称" prop="shop_name">
@@ -175,10 +175,10 @@ import Map from "@/components/Tool/Map.vue";
         this.form = res.data
         this.form.start_level = Number(this.form.start_level)
         this.value1 = [this.form.start_time, this.form.end_time]
-        this.imgUrl = this.form.upload[0].full_path
+        this.imgUrl = res.data.upload
         this.form.img = []
         this.form.upload.map(v => {
-          this.changeSwiper(v)
+          this.form.img.push({upload_id:v.id})
         })
 
       })
@@ -249,7 +249,7 @@ import Map from "@/components/Tool/Map.vue";
       dyPoiDis: false, // poi解析禁用
       actType: [{ id: 1, name: '云剪' }, { id: 2, name: '实探' }, { id: 3, name: '置换' }, { id: 4, name: '摄影师' }],
       value1: [],
-      imgUrl: '',
+      imgUrl: [],
       userList: [],
       form: {
         title: '',
@@ -338,6 +338,7 @@ import Map from "@/components/Tool/Map.vue";
       this.form.shop_name = this.shop_info.shop_name
       this.form.shop_phone = this.shop_info.shop_phone
       this.form.location = this.shop_info.location
+      console.log('this.shop_info', this.shop_info)
       this.form.shop_address = this.shop_info.shop_address
     }
   },

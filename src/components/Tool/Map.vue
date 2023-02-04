@@ -48,7 +48,8 @@ export default {
     // 加载地图依赖脚本
     TMap(this.key).then(qq => {
       this.qq = qq
-      var location = this.form.location || { lat: 39.916527, lng: 116.397128 }
+         console.log('this.form.location', this.form.location)
+      var location = (this.form.location!==null && Object.keys(this.form.location).length===2)? this.form.location: { lat: 39.916527, lng: 116.397128 }
 
       // 地图的中心地理坐标。
       var center = new qq.maps.LatLng(location.lat, location.lng)
@@ -73,12 +74,15 @@ export default {
       // 添加监听事件
       qq.maps.event.addListener(this.map, 'click', event => {
         // 添加标记
+
         this.setMarker(event.latLng)
       })
     })
     if (this.form.shop_address) {
       this.address = this.form.shop_address
-      this.geocoder.getLocation(this.address)
+      console.log('this.address', this.address)
+      // this.geocoder.getLocation(this.address)
+      // this.geolocation()
     }
   },
   methods: {

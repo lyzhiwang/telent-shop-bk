@@ -83,18 +83,16 @@
 
       </template>
     </complex-table>
-    <tag-dialog :is-visible="isShow" :type-list="tagTypeList" :tag-form="tagForm" @close="isShow=false" @change="search" />
-    <recharge-dialog :isVisible="rechargeShow" :id="currentId" @close="rechargeShow=false"></recharge-dialog>
+    <!-- <tag-dialog :is-visible="isShow" :type-list="tagTypeList" :tag-form="tagForm" @close="isShow=false" @change="search" />
+    <recharge-dialog :isVisible="rechargeShow" :id="currentId" @close="rechargeShow=false"></recharge-dialog> -->
   </div>
 </template>
 
 <script>
 import ComplexTable from '@/components/Table/ComplexTable'
-import TagDialog from '@/components/Dialog/TagDialog.vue'
-import RechargeDialog from './components/RechargeDialog.vue'
 
 export default {
-  components: { ComplexTable, TagDialog, RechargeDialog },
+  components: { ComplexTable },
   data() {
     return {
       rechargeShow: false,
@@ -120,7 +118,7 @@ export default {
         },
         {
           prop: 'title',
-          label: '活动名称',
+          label: '任务名称',
           isCustomize: true
         },
         // {
@@ -178,7 +176,7 @@ export default {
       }
       // 页面table加载
       this.listLoading = true
-      this.apiBtn('ActivityIndex', params)
+      this.apiBtn('PhotomanIndex', params)
         .then(res => {
           this.tagList = res.data
           this.pagination.total = res.meta.total

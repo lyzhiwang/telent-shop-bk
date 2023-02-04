@@ -115,6 +115,7 @@ export default {
         if (this.form.role_id === 3) {
           delete this.form.is_trusteeship
           delete this.form.shop_name
+          delete this.form.shop_phone
           delete this.form.shop_address
           delete this.form.activity_sing_money
         }
@@ -124,6 +125,7 @@ export default {
           delete this.form.project_name
           delete this.form.is_trusteeship
           delete this.form.shop_name
+          delete this.form.shop_phone
           delete this.form.shop_address
           delete this.form.activity_sing_money
         }

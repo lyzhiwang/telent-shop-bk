@@ -29,6 +29,7 @@ import request from '@/utils/request'
 import Watermark from '@/utils/watermark.js'
 
 export default {
+  name: 'upload',
   props: {
     // 限制上传图片格式，默认为1
     limit: {
@@ -37,8 +38,8 @@ export default {
     },
     // 图片列表
     imgUrl: {
-      type: String,
-      default: ''
+      type: Array,
+      default: []
     },
     // 图片大小 单位为 KB
     imgSize: {
@@ -112,20 +113,24 @@ export default {
     imgList: {
       deep: true,
       handler: function(newV, oldV) {
-        this.limitOne()
+        // this.limitOne()
       }
     },
-    imgUrl(newV, oldV) {
-      if (newV) this.imgList = [{ url: newV }]
+    imgUrl (newV, oldV) {
+      if (newV){
+        newV.map(v => {
+          this.imgList.push({url: v.full_path})
+        })
+      }
       else this.imgList = []
     }
   },
   created() {
     if (this.isAuto) this.$store.dispatch('config/GetQiniuToken', { file_type: 'img'})
-    if (this.imgUrl) this.imgList = [{ url: this.imgUrl }]
+    // if (this.imgUrl) this.imgList = [{ url: this.imgUrl }]
   },
   mounted() {
-    this.limitOne()
+    // this.limitOne()
   },
   methods: {
     // 重置组件

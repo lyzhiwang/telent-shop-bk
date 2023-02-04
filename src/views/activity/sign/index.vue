@@ -5,7 +5,7 @@
       :table-header="tableHeader"
       :table-data="tagList"
       :pagination="pagination"
-      :hasSelection="true"
+      :hasSelection="false"
       @changeMultipleSelection="changeSelection"
       @refreshTable="search"
     >
@@ -14,18 +14,19 @@
           <el-option v-for="item in tagTypeList" :key="item.id+item.name" :label="item.name" :value="item.id" />
         </el-select> -->
         <template v-if="act_type!==4">
-          <el-button type="primary" size="mini" @click="search" v-if="act_type!==1">达人报名待审核</el-button>
-          <el-button type="primary" size="mini" @click="search">达人提交链接待审核</el-button>
+          <el-button type="primary" size="mini" @click="search('status', 0, 0)" v-if="act_type!==1">达人报名待审核</el-button>
+          <el-button type="primary" size="mini" @click="search('is_submit_link', 1, 5)">达人提交链接待审核</el-button>
         </template>
         <template v-else>
-          <el-button type="primary" size="mini" @click="search">摄影师报名待审核</el-button>
-          <el-button type="primary" size="mini" @click="search">摄影师上传素材待审核</el-button>
+          <el-button type="primary" size="mini" @click="search('status', 0, 0)">摄影师报名待审核</el-button>
+          <el-button type="primary" size="mini" @click="search('material_is_submit',1, 5)">摄影师上传素材待审核</el-button>
         </template>
+        <el-button type="warning" size="mini" @click="init">重置</el-button>
 
       </template>
-      <template v-slot:btn>
+      <!-- <template v-slot:btn>
         <el-button v-has="'ActivityStore'" type="primary" size="medium" @click="toRedirect('ActivityStore')">添加活动</el-button>
-      </template>
+      </template> -->
       <!-- 手机号 -->
       <template v-slot:mini_phone="slotProps">
         {{ slotProps.scope.row.user.mini_phone }}
@@ -74,27 +75,38 @@
           @click="toDetail(slotProps.scope.row)"
         >详情</el-button>
         <el-button
-          v-has="'ActivityPut'"
-          type="primary"
+          v-has="'ActivitySignAudit'"
+          v-if="slotProps.scope.row.status===0 && formSearch.type!==1"
+          type="warning"
           size="mini"
-          @click="editActivity(slotProps.scope.row)"
-        >审核</el-button>
+          @click="auditActivity('ActivitySignAudit',slotProps.scope.row)"
+        >报名审核</el-button>
+        <el-button
+          v-has="'ActivityUrlAudit'"
+          v-if="(slotProps.scope.row.status===5 && slotProps.scope.row.is_submit_link===1 && slotProps.scope.row.task_url[0].is_failure===0) || (slotProps.scope.row.status===5 &&slotProps.scope.row.material_is_submit===1)"
+          type="danger"
+          size="mini"
+          @click="urlAuditActivity(slotProps.scope.row)"
+        >链接审核</el-button>
         </div>
 
       </template>
     </complex-table>
-    <detail :isDetailShow="dialogVisible" :type="act_type" :info="info" @close="dialogVisible = false"></detail>
+    <detail :isDetailShow="dialogVisible" :type="act_type" :info="info" @close="dialogVisible = false" @updata="getList" @audit="urlAuditShow=true"></detail>
+    <audit-dialog :isVisible="urlAuditShow" :id="currentId" @close="urlAuditShow=false" @refresh="getList"></audit-dialog>
   </div>
 </template>
 
 <script>
 import ComplexTable from '@/components/Table/ComplexTable'
 import Detail from './components/detail.vue'
+import AuditDialog from "./components/AuditDialog.vue";
 export default {
-  components: { ComplexTable, Detail },
+  components: { ComplexTable, Detail, AuditDialog },
   data() {
     return {
       dialogVisible: false,
+      urlAuditShow: false,
       formSearch: {
         type: null, // 活动类型 1:云剪 2：实探 3 置换 4 摄影师任务
         status: null, // 任务状态 0等待中 1进行中 2已完成 3已失效 4已取消-针对用户 5审核中 6 已驳回
@@ -110,7 +122,8 @@ export default {
       tagList: [],
       listLoading: true,
       isShow: false,
-      info: {}
+      info: {},
+      currentId: null
     }
   },
   computed: {
@@ -199,19 +212,29 @@ export default {
   created () {
     this.formSearch.id = this.$route.query.id
     this.formSearch.type = this.$route.query.type
-    this.getList(this.formSearch)
+    this.getList()
   },
   methods: {
-    search() {
+    init () {
+      this.formSearch.status = null
+      this.formSearch.is_submit_link = 0
+      this.formSearch.material_is_submit = 0
       this.pagination.page = 1
-      this.getList(this.formSearch)
+      this.getList()
+    },
+    search (key, value, status) {
+      this.formSearch.status = status
+      this.formSearch.is_submit_link = 0
+      this.formSearch.material_is_submit = 0
+      this.formSearch[key]=value
+      this.pagination.page = 1
+      this.getList()
     },
     // 用户列表
-    getList(formSearch) {
+    getList() {
       const params = {
-        ...this.pagination, ...formSearch
+        ...this.pagination, ...this.formSearch
       }
-      console.log('this.formSearch', params)
       // 页面table加载
       this.listLoading = true
       this.apiBtn('SignIndex', params)
@@ -227,10 +250,33 @@ export default {
     },
     toDetail (row) {
       this.info = row
+      this.currentId = row.id
       this.dialogVisible = true
     },
-    editActivity (row) {
-      this.toRedirect('ActivityStore',{id: row.id})
+    auditActivity (apiName,row) {
+      this.$confirm('是否通过此用户报名审核?', '提示', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '通过',
+          cancelButtonText: '拒绝',
+          type: 'warning'
+        }).then(() => {
+          this.apiBtn(apiName, { id: row.id, is_audit: 1 }).then(res => {
+            this.$message.success('操作成功')
+            this.getList()
+          })
+        }).catch(action => {
+          if (action === "cancel") {
+           this.apiBtn(apiName, { id: row.id, is_audit: 0 }).then(res => {
+            this.$message.success('操作成功')
+            this.getList()
+          })
+          }
+        })
+    },
+    // 链接审核
+    urlAuditActivity (row) {
+      this.currentId = row.task_url[0].id
+      this.urlAuditShow = true
     },
     keyText (status) {
       let str = ''
@@ -255,6 +301,9 @@ export default {
           break;
         case 6:
           str="已驳回"
+          break;
+        case 7:
+          str="报名未通过"
           break;
       }
       return str
