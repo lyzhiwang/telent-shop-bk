@@ -14,7 +14,7 @@
           </el-form-item>
           <el-form-item label="任务类型" prop="type">
             <el-radio-group v-model="form.type" >
-              <el-radio v-for="(item,index) in actType" :key="index" :label="item.id">{{ item.name }}</el-radio>
+              <el-radio v-for="(item,index) in actType" :key="index" :disabled="$route.query.id? true: false" :label="item.id">{{ item.name }}</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="任务人数" prop="join_num">
@@ -114,7 +114,7 @@
           <tip title="商家信息" />
            <!-- 代理帮商家创建任务 -->
           <el-form-item label="选择商家" v-if="roles===4" prop="create_admin_user_id">
-            <el-select v-model="form.create_admin_user_id" placeholder="请选择任务归属商家">
+            <el-select v-model="form.create_admin_user_id" placeholder="请选择任务归属商家" :disabled="$route.query.id? true: false">
               <el-option v-for="(item,index) in userList" :key="index" :label="`${item.username}(id:${item.id})`" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
@@ -136,7 +136,7 @@
             <el-button type="primary" @click="isMapShow=true" style="margin-left: 20px">选择位置</el-button>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit('formRule')">立即创建</el-button>
+            <el-button type="primary" @click="onSubmit('formRule')">立即{{$route.query.id? '更新': '创建'}}</el-button>
             <el-button @click="$router.go(-1)">取消</el-button>
           </el-form-item>
         </el-form>

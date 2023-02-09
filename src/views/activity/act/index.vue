@@ -74,12 +74,12 @@
           size="mini"
           @click="recharge(slotProps.scope.row)"
         >充值</el-button>
-        <!-- <el-button
+        <el-button
           v-has="'ActivityPut'"
           type="primary"
           size="mini"
           @click="editActivity(slotProps.scope.row)"
-        >编辑</el-button> -->
+        >编辑</el-button>
         <!-- <el-button
           v-has="'ActivityDestory'"
           type="danger"

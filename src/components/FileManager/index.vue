@@ -35,7 +35,7 @@
         <template v-if="fileType === 'audio' && list && list.length">
           <div v-for="(item, index) in list" :key="index" :class="['img-box', 'music', select.index === index ? 'img-box-border' : '']" @dblclick="changeItem(item, index)" @touchend="changeItem(item, index)" @mouseover="mouserOver(item, index)">
             <p :title="item.name" class="ellipsis">{{ item.name }}</p>
-            <p>{{ item.add_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</p>
+            <p>{{ item.created_at}}</p>
           </div>
         </template>
         <!-- 图片 -->
@@ -45,8 +45,8 @@
             <div class="img-info ellipsis">
               <p :title="item.name" class="name ellipsis">{{ item.name }}</p>
               <p>
-                <span>{{ item.size | fileSize }}</span>
-                <span>{{ item.add_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+                <!-- <span>{{ item.size | fileSize }}</span> -->
+                <span>{{ item.created_at}}</span>
               </p>
             </div>
           </div>

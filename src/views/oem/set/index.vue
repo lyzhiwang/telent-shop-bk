@@ -21,6 +21,9 @@
               <el-form-item label="达人须知" prop="star_contract">
                 <Tinymce :html="form.star_contract" @change="changeStar" />
               </el-form-item>
+               <el-form-item label="小程序二维码">
+                  <FileManager :value="form.mini_img" :page-size="8" :type="1" :size="1024" @change="changeMiniPic" />
+                </el-form-item>
               <!-- <el-form-item label="摄影师须知" prop="photo_contract">
                 <Tinymce :html="form.photo_contract" @change="changePhoto" />
               </el-form-item> -->
@@ -42,7 +45,7 @@
 
               <template>
                 <el-form-item label="首页分享图片" class="activity-share_image">
-                  <FileManager :value="form.share_img" :page-size="8" :type="1" :size="100" @change="changeSharePic" />
+                  <FileManager :value="form.share_img" :page-size="8" :type="1" :size="500" @change="changeSharePic" />
                 </el-form-item>
                 <div class="tip-font">1.图片尺寸：1:1；2.图片大小必须小于100KB</div>
               </template>
@@ -95,7 +98,8 @@ export default {
           share_title: '',
           // share_desc: '',
           share_img:{},
-          cs_img: {}
+          cs_img: {},
+          mini_img: {} // 小程序二维码
         },
         rules: {
           img: [{required: true, trigger: 'change', validator: validateImg}],
@@ -134,6 +138,11 @@ export default {
         } else {
           this.form.share_img = {}
         }
+        if (this.form.mini_img !== null) {
+          this.form.mini_img.path = this.form.mini_img.full_path
+        } else {
+          this.form.mini_img = {}
+        }
       })
     },
 
@@ -142,6 +151,7 @@ export default {
       let query = { ...this.form }
       query.share_img = this.form.share_img.id
       query.cs_img = this.form.cs_img.id
+      query.mini_img = this.form.mini_img.id
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.apiBtn('OemConfigUpdate', query).then(res => {
@@ -169,6 +179,9 @@ export default {
       },
       changeSharePic (e) {
         this.form.share_img = e
+    },
+      changeMiniPic (e) {
+        this.form.mini_img = e
       },
         // 达人须知
       changeStar (e) {
