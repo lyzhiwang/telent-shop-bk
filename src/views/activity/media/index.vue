@@ -13,7 +13,7 @@
                 :label="item.name"
                 :name="String(item.id)"
               >
-              <div class="media-box">
+              <div class="media-box" v-if="$route.query.type===1">
                 <div class="marginR">
                   <!-- <span class="marginR spanmove">请选择移动</span>
                   <el-select  v-model="selectIndex" placeholder="请选择模块" clearable @change="selectIndexBtn">

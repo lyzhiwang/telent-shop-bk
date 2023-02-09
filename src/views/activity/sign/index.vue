@@ -83,11 +83,18 @@
         >报名审核</el-button>
         <el-button
           v-has="'ActivityUrlAudit'"
-          v-if="(slotProps.scope.row.status===5 && slotProps.scope.row.is_submit_link===1 && slotProps.scope.row.task_url[0].is_failure===0) || (slotProps.scope.row.status===5 &&slotProps.scope.row.material_is_submit===1)"
+          v-if="slotProps.scope.row.status===5 && slotProps.scope.row.is_submit_link===1 && slotProps.scope.row.task_url[0].is_failure===0"
           type="danger"
           size="mini"
           @click="urlAuditActivity(slotProps.scope.row)"
         >链接审核</el-button>
+        <el-button
+          v-has="'ActivityUrlAudit'"
+          v-if="slotProps.scope.row.status===5 &&slotProps.scope.row.material_is_submit===1"
+          type="danger"
+          size="mini"
+          @click="toRedirect('ActivityUrlAudit',{id:slotProps.scope.row.activity_id, task_id: slotProps.scope.row.id})"
+        >素材审核</el-button>
         </div>
 
       </template>
@@ -134,9 +141,9 @@ export default {
       let arr = [
         {
           prop: 'id',
-          label: 'ID',
+          label: '任务ID',
           sortable: true,
-          width: 80
+          width: 100
         },
         {
           prop: 'mini_phone',

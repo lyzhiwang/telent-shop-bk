@@ -98,11 +98,15 @@ const state = {
   permissionBtn: {},
   btnPage: {
     UserInfo: '/user/info',
+    AdminShow: '/permi/admin/create',
     AdminStore: '/permi/admin/create',
     AdminUpdate: '/permi/admin/edit',
     ActivityStore: '/activity/act/create',
     TypeIndex: '/activity/media',
-    SignIndex: '/activity/sign'
+    SignIndex: '/activity/sign',
+    PhotomanUpdate: '/cameraman/medias',
+    ActivityUrlAudit: '/activity/material',
+    PaymentStore: '/funds/payment/create'
   },
   permissionBtnType: {
   }

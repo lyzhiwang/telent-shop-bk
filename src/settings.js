@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'admin-template',
+  title: '快抖探店',
 
   /**
    * @type {boolean} true | false

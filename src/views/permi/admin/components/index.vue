@@ -52,8 +52,8 @@ export default {
       form: {
         // 基础字段
         username: '', // 用户名
-        password: 'zwwl123456', // 密码
-        remark: '测试', // 备注
+        password: '', // 密码
+        remark: '', // 备注
         role_id: '', // 角色
         area: '', // 地区
         date: '', // 使用时间
@@ -112,6 +112,17 @@ export default {
     // 提交数据
     submit () {
       if (this.validateForm()) {
+        if (this.form.role_id === 2) {
+          delete this.form.date
+          delete this.form.is_trusteeship
+          delete this.form.shop_name
+          delete this.form.shop_phone
+          delete this.form.shop_address
+          delete this.form.activity_sing_money
+          delete this.form.area
+          delete this.form.logo
+          delete this.form.project_name
+        }
         if (this.form.role_id === 3) {
           delete this.form.is_trusteeship
           delete this.form.shop_name

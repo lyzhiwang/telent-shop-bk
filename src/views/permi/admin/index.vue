@@ -94,7 +94,7 @@
             <el-button v-has="'AdminRestore'" type="warning" size="small" @click="restore(props.scope.row)">恢复</el-button>
           </template>
           <template v-else>
-            <el-button v-has="'AdminUpdate'" type="primary" size="small" @click="toRedirect('AdminUpdate', {id:props.scope.row.id})">编辑</el-button>
+            <el-button v-has="'AdminShow'" type="primary" size="small" @click="toRedirect('AdminShow', {id:props.scope.row.id})">编辑</el-button>
             <el-button v-has="'AdminDestroy'" type="danger" size="small" @click="deleteUser('AdminDestroy', props.scope.row)">删除</el-button>
             <el-button v-has="'AdminLabourStore'" type="success" size="small" @click="labour('AdminLabourStore', props.scope.row)">充值</el-button>
             <el-button v-if="showCheck(props.scope.row)" type="warning" size="small" @click="toRedirect('AdminCheck', {id:props.scope.row.id})">审核</el-button>
@@ -192,9 +192,9 @@ export default {
         { prop: 'money', label: '余额', width: 100 },
         { prop: 'operation', label: '操作', width: 210, isCustomize: true }
       ]
-      if (this.checkRole(['admin', 'operation', 'agent'])) header.splice(6, 0, { prop: 'agent', label: '展示代理商信息', width: 80, isCustomize: true })
-      if (this.checkRole(['admin', 'operation', 'account'])) header.splice(9, 0, { prop: 'store', label: '门店', width: 80, sortable: true, isCustomize: true })
-      if (this.checkRole(['admin'])) header.splice(10, 0, { prop: 'deleted_at', label: '删除时间' })
+      // if (this.checkRole(['admin', 'operation', 'agent'])) header.splice(6, 0, { prop: 'agent', label: '展示代理商信息', width: 80, isCustomize: true })
+      // if (this.checkRole(['admin', 'operation', 'account'])) header.splice(9, 0, { prop: 'store', label: '门店', width: 80, sortable: true, isCustomize: true })
+      // if (this.checkRole(['admin'])) header.splice(10, 0, { prop: 'deleted_at', label: '删除时间' })
 
       return header
     }

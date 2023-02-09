@@ -1,9 +1,9 @@
 module.exports = {
   title: 'dist',
-  host: '39.106.179.168',
+  host: '123.56.68.226',
   port: 22,
   username: 'root',
-  // privateKey: require('fs').readFileSync('c:/Users/zmx/.ssh/id_rsa'),
-  path: '/www/wwwroot/short-v-api/public'
+  privateKey: require('fs').readFileSync('c:/Users/yanghao/.ssh/id_rsa'),
+  path: '/www/wwwroot/kdtd/front'
 }
 

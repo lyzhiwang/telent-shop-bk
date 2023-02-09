@@ -141,8 +141,9 @@ export default {
       this.imgList = []
     },
     // 删除文件的钩子
-    handleRemove(file, fileList) {
-      this.init(file)
+    handleRemove (file, fileList) {
+      this.$emit('remove', file)
+      // this.init(file)
     },
     // 自动上传成功的钩子
     uploadSuccess(response, file, fileList) {

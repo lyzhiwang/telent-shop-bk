@@ -53,8 +53,15 @@
           type="primary"
           size="mini"
           v-if="slotProps.scope.row.type===1"
-          @click="toRedirect('TypeIndex',{id:slotProps.scope.row.id})"
+          @click="toRedirect('TypeIndex',{id:slotProps.scope.row.id,type:1})"
         >素材列表</el-button>
+        <el-button
+          v-has="'TypeIndex'"
+          type="primary"
+          size="mini"
+          v-if="slotProps.scope.row.type===4"
+          @click="toRedirect('TypeIndex',{id:slotProps.scope.row.id,type:2})"
+        >素材分类</el-button>
         <el-button
           v-has="'SignIndex'"
           type="warning"
@@ -63,22 +70,22 @@
         >报名列表</el-button>
         <el-button
           v-has="'PrestoredStore'"
-          type="primary"
+          type="danger"
           size="mini"
           @click="recharge(slotProps.scope.row)"
         >充值</el-button>
-        <el-button
+        <!-- <el-button
           v-has="'ActivityPut'"
           type="primary"
           size="mini"
           @click="editActivity(slotProps.scope.row)"
-        >编辑</el-button>
-        <el-button
+        >编辑</el-button> -->
+        <!-- <el-button
           v-has="'ActivityDestory'"
           type="danger"
           size="mini"
           @click="deleteActivity(slotProps.scope.row)"
-        >删除</el-button>
+        >删除</el-button> -->
         </div>
 
       </template>

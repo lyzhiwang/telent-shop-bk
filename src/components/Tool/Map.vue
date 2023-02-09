@@ -106,7 +106,7 @@ export default {
     },
     // 确认使用所选商家位置
     submit() {
-      if (!this.form.shop_address) {
+      if (!this.address) {
         this.$message('请填写商家位置')
         return
       }

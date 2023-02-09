@@ -14,7 +14,7 @@
         <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
       </template>
       <template v-slot:btn>
-        <el-button v-has="'RoleStore'" type="primary" size="medium" @click="addTag">添加标签</el-button>
+        <el-button v-has="'TagStore'" type="primary" size="medium" @click="addTag">添加标签</el-button>
       </template>
       <!-- 类型 -->
       <template v-slot:type="slotProps">

@@ -78,8 +78,8 @@ export default {
     return {
       activeName: 'first',
       userInfo: {
-        username: 'zwshop',
-        password: '123456',
+        username: '',
+        password: '',
         captcha: '31646',
         key: ''
       },

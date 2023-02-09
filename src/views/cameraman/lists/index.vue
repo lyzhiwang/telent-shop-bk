@@ -13,72 +13,50 @@
         </el-select>
         <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
       </template>
-      <template v-slot:btn>
-        <el-button v-has="'ActivityStore'" type="primary" size="medium" @click="toRedirect('ActivityStore')">添加活动</el-button>
+      <!-- id -->
+      <template v-slot:id="slotProps">
+        {{ slotProps.scope.row.activity.id }}
       </template>
       <!-- 类型 -->
       <template v-slot:title="slotProps">
-        {{ slotProps.scope.row.title }}
-        <div class="tag">
-          <el-tag v-if="slotProps.scope.row.type===1" size="mini" effect="dark">云剪</el-tag>
-          <el-tag v-else-if="slotProps.scope.row.type===2" size="mini" type="success" effect="dark">实探</el-tag>
-          <el-tag v-else-if="slotProps.scope.row.type===3" size="mini" type="warning" effect="dark">置换</el-tag>
-          <el-tag v-else size="mini" type="danger" effect="dark">摄影师</el-tag>
-        </div>
-
+        {{ slotProps.scope.row.activity.title }}
       </template>
 
 
-      <!-- 参与人数限制 -->
-      <template v-slot:join_num="slotProps">
-        {{ slotProps.scope.row.join_num }}
+      <!-- 商家反选-->
+      <template v-slot:shop_is_adopt="slotProps">
+        {{ slotProps.scope.row.shop_is_adopt===1?'通过': '拒绝' }}
+      </template>
+
+      <!-- 是否打卡 -->
+      <template v-slot:is_punch_clock="slotProps">
+        {{ slotProps.scope.row.is_punch_clock===1?'已打卡': '未打卡' }}
+      </template>
+
+      <!-- 任务佣金 -->
+      <template v-slot:photo_man_money="slotProps">
+        {{ slotProps.scope.row.activity.photo_man_money}}
       </template>
 
       <!-- 时间 -->
       <template v-slot:time="slotProps">
-        {{ slotProps.scope.row.start_time + ' ~ ' + slotProps.scope.row.end_time }}
+        {{ slotProps.scope.row.created_at + ' ~ ' + slotProps.scope.row.end_time }}
       </template>
 
       <!-- 活动暂停功能 -->
-      <template v-slot:status="props">
-        <el-tooltip :content="props.scope.row.status === 1 ? '当前状态：开启' : '当前状态：暂停'" placement="top">
-          <el-switch v-model="props.scope.row.status" :active-value="1" :inactive-value="2" @change="changeSwitch('ActivityPause', props.scope.row)" />
-        </el-tooltip>
+      <template v-slot:status="slotProps">
+        {{keyText(slotProps.scope.row.status)}}
       </template>
       <!-- 操作 -->
       <template v-slot:action="slotProps">
         <div class="btns">
           <el-button
-          v-has="'TypeIndex'"
+          v-has="'PhotomanUpdate'"
           type="primary"
           size="mini"
-          v-if="slotProps.scope.row.type===1"
-          @click="toRedirect('TypeIndex',{id:slotProps.scope.row.id})"
-        >素材列表</el-button>
-        <el-button
-          v-has="'SignIndex'"
-          type="warning"
-          size="mini"
-          @click="toRedirect('SignIndex',{id:slotProps.scope.row.id,type:slotProps.scope.row.type})"
-        >报名列表</el-button>
-        <el-button
-          v-has="'PrestoredStore'"
-          type="primary"
-          size="mini"
-          @click="recharge(slotProps.scope.row)"
-        >充值</el-button>
-        <el-button
-          v-has="'ActivityPut'"
-          type="primary"
-          size="mini"
-          @click="editActivity(slotProps.scope.row)"
-        >编辑</el-button>
-        <el-button
-          v-has="'ActivityDestory'"
-          type="danger"
-          size="mini"
-          @click="deleteActivity(slotProps.scope.row)"
-        >删除</el-button>
+          v-if="slotProps.scope.row.shop_is_adopt && !slotProps.scope.row.is_punch_clock && !slotProps.scope.row.material_is_submit"
+          @click="toRedirect('PhotomanUpdate',{id:slotProps.scope.row.activity.id,task_id: slotProps.scope.row.id})"
+        >上传素材</el-button>
         </div>
 
       </template>
@@ -95,7 +73,6 @@ export default {
   components: { ComplexTable },
   data() {
     return {
-      rechargeShow: false,
       formSearch: {
         type: null
       },
@@ -113,6 +90,7 @@ export default {
         {
           prop: 'id',
           label: 'ID',
+          isCustomize: true,
           sortable: true,
           width: 80
         },
@@ -121,24 +99,25 @@ export default {
           label: '任务名称',
           isCustomize: true
         },
-        // {
-        //   prop: 'type',
-        //   label: '类型',
-        //   width: 250,
-        //   isCustomize: true
-        // },
         {
-          prop: 'join_num',
-          label: '参与人数',
-          width: 200
+          prop: 'shop_is_adopt',
+          label: '商家反选状态',
+          width: 200,
+          isCustomize: true
         },
         {
-          prop: 'shop_name',
-          label: '商家名称'
+          prop: 'is_punch_clock',
+          label: '是否打卡',
+          isCustomize: true
+        },
+        {
+          prop: 'photo_man_money',
+          label: '任务佣金',
+          isCustomize: true
         },
         {
           prop: 'time',
-          label: '活动时间',
+          label: '任务时间',
           width: 300,
           isCustomize: true
         },
@@ -157,7 +136,6 @@ export default {
       ],
       tagList: [],
       listLoading: true,
-      isShow: false,
       currentId: null
     }
   },
@@ -183,6 +161,36 @@ export default {
           this.listLoading = false
         })
     },
+    keyText (status) {
+      let str = ''
+      switch (status) {
+        case 0:
+          str="等待中"
+          break;
+        case 1:
+          str="进行中"
+          break;
+        case 2:
+          str="已完成"
+          break;
+        case 3:
+          str="已失效"
+          break;
+        case 4:
+          str="已取消"
+          break;
+        case 5:
+          str="审核中"
+          break;
+        case 6:
+          str="已驳回"
+          break;
+        case 7:
+          str="报名未通过"
+          break;
+      }
+      return str
+    },
     addTag() {
       this.isShow = true
     },
@@ -206,32 +214,6 @@ export default {
     recharge (row) {
       this.currentId = row.id
       this.rechargeShow = true
-    },
-    // 开始暂停按钮
-    showPause(val) {
-      return !('24'.indexOf(val) >= 0 && this.$_has('ActivityPause'))
-    },
-    // 开关控制 码上拓客没有活动暂停
-    changeSwitch (name, row) {
-      console.log('row.status', row.status)
-      const msg = (row.status === 2 ? '将要暂停' : '将要开启') + '活动“' + row.title + '(' + row.id + ')”,是否继续？'
-      const params = {
-        id: row.id,
-        status: row.status
-      }
-      const catchBack = () => {
-        this.$set(row, 'status', row.status = row.status===2?1:2)
-      }
-      const callBack = () => {
-        this.apiBtn(name, params)
-          .then(res => {
-            this.$set(row, 'status', row.status)
-          })
-          .catch(res => {
-            catchBack()
-          })
-      }
-      this.defalultConfirm(msg, callBack, catchBack)
     }
   }
 }

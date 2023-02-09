@@ -51,7 +51,7 @@
             />
           </el-form-item>
           <el-form-item label="轮播图" prop="img">
-            <Upload :multiple="true" :limit="3" :imgUrl="imgUrl" :params="{type: 1}" @change="changeSwiper"></Upload>
+            <Upload :multiple="true" :limit="3" :imgUrl="imgUrl" :params="{type: 1}" @remove="removeSwiper" @change="changeSwiper"></Upload>
           </el-form-item>
 
           <el-form-item label="任务详情" prop="detail">
@@ -91,7 +91,7 @@
             </el-col>
             <el-col :span="2">任务金额(元)：</el-col>
             <el-col :span="4" class="fans_box">
-              <el-input-number v-model="item.money" :min="1" :controls="false">
+              <el-input-number v-model="item.money" :min="0.1" :controls="false">
             </el-input-number>
             </el-col>
             <template v-if="index!==0 && form.award_rule.length===index+1">
@@ -121,7 +121,7 @@
           <el-form-item label="商家名称" prop="shop_name">
             <el-input v-model="form.shop_name" maxlength="10" placeholder="长度在 1 到 10 个字符" />
           </el-form-item>
-          <el-form-item label="商家手机" prop="shop_name">
+          <el-form-item label="商家手机" prop="shop_phone">
             <el-input v-model.number="form.shop_phone" type="number" maxlength="11" placeholder="请输入商家联系方式" />
           </el-form-item>
           <el-form-item label="抖音显示位置(PoiId)" prop="poi" class="dyPoi_box">
@@ -218,6 +218,10 @@ import Map from "@/components/Tool/Map.vue";
           if (this.form.award_rule[i].fans_num >= this.form.award_rule[i + 1].fans_num) {
             callback(new Error('粉丝数量后一个必须大于前一个!'))
             break;
+          } else {
+            if (i === this.form.award_rule.length - 2) {
+              callback()
+            }
           }
         }
       }else callback()
@@ -281,7 +285,7 @@ import Map from "@/components/Tool/Map.vue";
       rules: {
         title: [
           { required: true, message: '请输入任务名称', trigger: 'blur' },
-          { min: 3, max: 15, message: '长度在 3 到 15 个字符', trigger: 'blur' }
+          { min: 3, max: 50, message: '长度在 3 到 50 个字符', trigger: 'blur' }
         ],
         main_package: [
           { required: true, message: '请输入主推套餐', trigger: 'blur' }
@@ -406,15 +410,23 @@ import Map from "@/components/Tool/Map.vue";
       console.log('this.form', this.form)
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.apiBtn(`${this.form.id?'ActivityPut' :'ActivityStore'}`, this.form).then(res => {
+          // this.form.id?'ActivityPut' :
+          this.apiBtn(this.form.id?'ActivityPut' :'ActivityStore', this.form).then(res => {
             this.$message.success('操作成功!')
              this.$router.go(-1)
           })
-          } else {
+        } else {
+            // console.log('3333')
             console.log('error submit!!');
-            return false;
           }
         });
+    },
+    removeSwiper (file) {
+      const fileId = file.response.data.id
+      const index = this.form.img.findIndex(v => { return v.upload_id === fileId })
+      if (index >= 0) {
+       this.form.img.splice(index,1)
+      }
     }
     }
   }
