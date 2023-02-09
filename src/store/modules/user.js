@@ -181,8 +181,17 @@ const actions = {
         commit('SET_IS_OPEN_AUTH', data.is_open_authorization)
         commit('SET_IS_OPEN_CARD', data.is_open_card)
         commit('SET_IS_AUTH', data.is_authorization)
+        // 设置首页所需数据
+        try {
+          const { admin_revenue, mini_img } = data
+          console.log(111, admin_revenue, mini_img)
+          let parame = admin_revenue ? { total: admin_revenue.total, wait_money: admin_revenue.wait_money, withdrew: admin_revenue.withdrew } : {}
+          if(mini_img&&mini_img.full_path) parame.mini_qrcode = mini_img.full_path;
+          commit('SET_DASHBOARD', parame)
+        } catch (error) {
+          // 不做处理
+        }
         resolve(response)
-        resolve(data)
       }).catch(error => {
         reject(error)
       })
