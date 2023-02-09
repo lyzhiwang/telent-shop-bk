@@ -61,7 +61,7 @@
 
       <!-- 摄影师擅长领域-->
       <template v-slot:good_at="slotProps">
-        {{ slotProps.scope.row.good_at }}
+        <span >{{JSON.parse(slotProps.scope.row.good_at).join('、')}}</span>
       </template>
 
       <!-- 摄影师工作设备-->
@@ -78,7 +78,7 @@
         <div class="btns">
         <el-button
           v-has="'UserAudit'"
-          v-if="slotProps.scope.row.star_is_submit===1 && slotProps.scope.row.photo_is_submit===1"
+          v-if="(oem_info.star_is_auth&&!slotProps.scope.row.is_star) || (oem_info.photo_is_auth&&!slotProps.scope.row.is_photo_man)"
           type="warning"
           size="mini"
           @click="auditActivity('UserAudit',slotProps.scope.row)"
@@ -87,15 +87,12 @@
 
       </template>
     </complex-table>
-    <!-- <detail :isDetailShow="dialogVisible" :type="act_type" :info="info" @close="dialogVisible = false" @updata="getList" @audit="urlAuditShow=true"></detail>
-    <audit-dialog :isVisible="urlAuditShow" :id="currentId" @close="urlAuditShow=false" @refresh="getList"></audit-dialog> -->
   </div>
 </template>
 
 <script>
 import ComplexTable from '@/components/Table/ComplexTable'
-// import Detail from './components/detail.vue'
-// import AuditDialog from "./components/AuditDialog.vue";
+import { mapState } from "vuex";
 export default {
   components: { ComplexTable},
   data() {
@@ -117,12 +114,21 @@ export default {
       isShow: false,
       info: {},
       currentId: null,
-      userCount: {} // 待审核数量
+      userCount: {}, // 待审核数量
+      oem_info: {} // oem配置信息
     }
   },
   created () {
     this.getList()
     this.getUserCount()
+    this.apiBtn('OemConfigShow', { id: this.userId }).then(res => {
+      this.oem_info = res.data
+    })
+  },
+  computed: {
+     ...mapState({
+        userId: state => state.user.userId
+      })
   },
   watch: {
     'tabPosition': {
@@ -155,7 +161,6 @@ export default {
   methods: {
     // 切换列表类型
     changeType(e){
-      console.log('e', e)
       if (e === 0) {
         this.formSearch = {
           star: 1
@@ -192,7 +197,7 @@ export default {
       this.apiBtn('UserIndex', params)
         .then(res => {
           this.tagList = res.data
-          // this.pagination.total = res.meta.total
+          this.pagination.total = res.meta.total
           this.listLoading = false
         })
     },
