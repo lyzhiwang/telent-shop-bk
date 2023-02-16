@@ -10,25 +10,6 @@
           @change="changeArea"
           clearable
         />
-            <!-- <el-select v-model="province" placeholder="请选择省份" @change="changeProvince" clearable >
-              <el-option
-                v-for="item in areaList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id">
-              </el-option>
-            </el-select>
-            <template v-if="!is_province && this.cityArr.length>1">
-              <br/><br/>
-            <el-select v-model="citys" placeholder="请选择市" multiple  @change="changeCitys" clearable>
-              <el-option
-                v-for="item in cityArr"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id">
-              </el-option>
-            </el-select>
-            </template> -->
 
 
       </el-form-item>
@@ -38,7 +19,6 @@
 </template>
 
 <script>
-import { getCity } from '@/utils/area'
 export default {
   props: {
     form: {
@@ -73,7 +53,7 @@ export default {
         value: 'id',
         label: 'name',
         multiple: true,
-        checkStrictly: true
+        // checkStrictly: true
       }
     }
   },
@@ -82,13 +62,22 @@ export default {
   created () {
     this.cityArr = []
     // this.getAgentList()
-    if (this.form.area > 0) this.userArea = this.countFullAdcode(this.form.area)
+    if (this.form.area) {
+      let arr = this.form.area.split(',')
+      let newArr = arr.map(Number)
+      if (newArr.length === 3) {
+        this.userArea.push(newArr)
+      } else {
+        for (let i = 2; i < newArr.length - 2; i++){
+          let arr1 = [newArr[0], newArr[1], newArr[i]]
+          this.userArea.push(arr1)
+        }
+      }
+    }
   },
   methods: {
     changeArea (e) {
-      console.log('e', e)
       let arr = this._.uniq(this._.flattenDeep([...e]))
-      console.log('arr', arr)
       this.$emit('change', { key: 'area', val: arr.toString() })
     },
     // 省份切换

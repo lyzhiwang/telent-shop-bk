@@ -2,7 +2,7 @@
   <div>
     <el-form ref="form" :model="form" :rules="formRules" :label-position="$store.state.app.labelPosition" label-width="251px">
       <el-form-item label="账号" prop="username">
-        <el-input v-model="form.username" placeholder="设置账号" clearable autocomplete="off" />
+        <el-input v-model="form.username" placeholder="设置账号" :disabled="id? true: false" clearable autocomplete="off" />
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <div class="pwd-box">
@@ -32,7 +32,7 @@
         <el-input v-model="form.remark" maxlength="10" clearable />
       </el-form-item>
       <el-form-item label="角色" prop="role_id">
-        <el-select v-model="form.role_id" :disabled="checkRole(['agent'])" placeholder="请设置该用户角色" clearable>
+        <el-select v-model="form.role_id" :disabled="id? true: false" placeholder="请设置该用户角色" clearable>
           <el-option v-for="item in roleList" :key="item.name + item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
@@ -107,7 +107,6 @@ export default {
     // 角色列表
     roleList: function () {
       let list = this.$store.state.config.roleList
-      console.log('list', list)
       let newArr  = []
       switch (this.roles) {
         case 1: // admin
@@ -123,7 +122,6 @@ export default {
           newArr = list.filter(v=> {return v.id === 5})
           break;
       }
-      console.log('newArr', newArr)
       return newArr
     }
   },

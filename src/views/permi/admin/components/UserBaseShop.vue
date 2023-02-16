@@ -12,17 +12,24 @@
       <el-input v-model.number="form.shop_phone" type="number" maxlength="11" placeholder="请输入商家联系方式" />
     </el-form-item>
     <el-form-item label="商家地址" prop="shop_address">
-      <el-input v-model="form.shop_address" placeholder="请输入商家地址" />
+      <el-input v-model="form.shop_address" disabled placeholder="请输入商家地址" />
+      <el-button type="primary" @click="isMapShow=true" style="margin-left: 20px">选择位置</el-button>
     </el-form-item>
-    <el-form-item label="活动报名金额">
+    <!-- <el-form-item label="活动报名金额">
       <el-input-number v-model="form.activity_sing_money" :controls="false"></el-input-number>
-    </el-form-item>
-
+    </el-form-item> -->
+    <el-dialog
+        title="选择位置"
+        :visible.sync="isMapShow"
+        width="60%">
+        <Map :form="form"  @change="updateForm" @hide="isMapShow=false"></Map>
+      </el-dialog>
   </el-form>
 </template>
 <script>
-
+import Map from "@/components/Tool/Map.vue";
 export default {
+  components: { Map },
   props: {
     form: {
       type: Object,
@@ -32,17 +39,26 @@ export default {
           shop_name: '', // 商家名称
           shop_phone: '', // 商家电话
           shop_address: '', // 商家地址
-          activity_sing_money: 0
+          location:{}
+          // activity_sing_money: 0
         }
       }
     }
   },
-  data() {
+  data () {
+     const validateLoaction = (rule, val, callback) => {
+      if (val && Object.keys(this.form.location).length>0) {
+        callback()
+      } else {
+        callback(new Error('请点击'))
+      }
+    }
     return {
+      isMapShow: false,
       formRules: {
         shop_name: [{ required: true, message: '请输入商家名称', trigger: 'blur' }],
         shop_phone: [{ required: true, message: '请输入商家电话', trigger: 'blur' }],
-        shop_address: [{ required: true, message: '请输入商家地址', trigger: 'blur' }]
+        shop_address: [{ required: true, trigger: 'blur', validator: validateLoaction }]
       }
     }
   },
@@ -56,7 +72,10 @@ export default {
         result = valid
       })
       return result
-    }
+    },
+    updateForm (e,val) {
+      this.form[e] = val
+     },
   }
 }
 </script>

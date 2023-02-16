@@ -95,7 +95,7 @@
           </template>
           <template v-else>
             <el-button v-has="'AdminShow'" type="primary" size="small" @click="toRedirect('AdminShow', {id:props.scope.row.id})">编辑</el-button>
-            <el-button v-has="'AdminDestroy'" type="danger" size="small" @click="deleteUser('AdminDestroy', props.scope.row)">删除</el-button>
+            <!-- <el-button v-has="'AdminDestroy'" type="danger" size="small" @click="deleteUser('AdminDestroy', props.scope.row)">删除</el-button> -->
             <el-button v-has="'AdminLabourStore'" type="success" size="small" @click="labour('AdminLabourStore', props.scope.row)">充值</el-button>
             <el-button v-if="showCheck(props.scope.row)" type="warning" size="small" @click="toRedirect('AdminCheck', {id:props.scope.row.id})">审核</el-button>
           </template>

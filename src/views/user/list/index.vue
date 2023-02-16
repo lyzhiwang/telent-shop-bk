@@ -44,6 +44,17 @@
         {{ slotProps.scope.row.star_level? slotProps.scope.row.star_level: '暂无'}}
       </template>
 
+       <!-- 达人等级截图-->
+      <template v-slot:level_img="slotProps">
+        <el-image
+          fit="fill"
+          style="width: 100px; height: 100px"
+          :src="slotProps.scope.row.level_img.full_path"
+          :preview-src-list="[slotProps.scope.row.level_img.full_path]">
+        </el-image>
+        <!-- {{ slotProps.scope.row.star_level? slotProps.scope.row.star_level: '暂无'}} -->
+      </template>
+
       <!-- 粉丝数量-->
       <template v-slot:fans_num="slotProps">
         {{ slotProps.scope.row.fans_num }}
@@ -78,7 +89,7 @@
         <div class="btns">
         <el-button
           v-has="'UserAudit'"
-          v-if="(oem_info.star_is_auth&&!slotProps.scope.row.is_star) || (oem_info.photo_is_auth&&!slotProps.scope.row.is_photo_man)"
+          v-if="(oem_info.star_is_auth&&slotProps.scope.row.is_star===0 &&!tabPosition) || (tabPosition&&oem_info.photo_is_auth&&slotProps.scope.row.is_photo_man===0)"
           type="warning"
           size="mini"
           @click="auditActivity('UserAudit',slotProps.scope.row)"
@@ -138,7 +149,8 @@ export default {
         this.tableHeader = [
           {prop: 'id',label: 'ID',sortable: true, width: 80},
           {prop: 'mini_phone', label: '用户信息', width: 300, isCustomize: true },
-          {prop: 'star_level',label: '达人等级',isCustomize: true},
+          {prop: 'star_level', label: '达人等级', isCustomize: true },
+          {prop: 'level_img',label: '达人等级截图',isCustomize: true},
           {prop: 'fans_num',label: '粉丝数量',isCustomize: true},
           {prop: 'favour_num',label: '获赞数量',isCustomize: true},
           {prop: 'status',label: '状态',width: 150,isCustomize: true},

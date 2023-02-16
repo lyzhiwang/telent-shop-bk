@@ -1,4 +1,3 @@
-// filery
 const toolbar_default = [
   'undo redo | fontselect fontsizeselect  | forecolor backcolor ',
   'bold  aligncenter removeformat | link image media filery myEmoticons | code  template fullscreen'

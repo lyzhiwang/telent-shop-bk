@@ -119,7 +119,7 @@ export default {
     imgUrl (newV, oldV) {
       if (newV){
         newV.map(v => {
-          this.imgList.push({url: v.full_path})
+          this.imgList.push({url: v.full_path,id: v.id})
         })
       }
       else this.imgList = []
@@ -142,8 +142,8 @@ export default {
     },
     // 删除文件的钩子
     handleRemove (file, fileList) {
+      console.log('file1111111', file)
       this.$emit('remove', file)
-      // this.init(file)
     },
     // 自动上传成功的钩子
     uploadSuccess(response, file, fileList) {

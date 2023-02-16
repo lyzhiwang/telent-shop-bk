@@ -90,15 +90,6 @@ export default {
         total: 100
       },
       tableData: [
-        {
-          out_trade_no: 0,
-          money: 0,
-          Recharge_money: 0,
-          add_time: 123,
-          status: 1,
-          pay_time: 123,
-          name: '123'
-        }
       ],
       statusOptions: {
         // 0: '全部状态',

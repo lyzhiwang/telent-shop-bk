@@ -54,7 +54,7 @@
           v-has="'PhotomanUpdate'"
           type="primary"
           size="mini"
-          v-if="slotProps.scope.row.shop_is_adopt && !slotProps.scope.row.is_punch_clock && !slotProps.scope.row.material_is_submit"
+          v-if="slotProps.scope.row.shop_is_adopt && slotProps.scope.row.is_punch_clock && !slotProps.scope.row.material_is_submit"
           @click="toRedirect('PhotomanUpdate',{id:slotProps.scope.row.activity.id,task_id: slotProps.scope.row.id})"
         >上传素材</el-button>
         </div>

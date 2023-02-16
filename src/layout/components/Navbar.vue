@@ -47,7 +47,7 @@
       </el-tooltip>
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+          <img :src="avatar? avatar :require('@/assets/avatar.jpg')" class="user-avatar">
           <span class="right-menu-item">{{ name }}</span>
           <i class="el-icon-caret-bottom" />
         </div>
@@ -96,14 +96,14 @@ export default {
     dropdown() {
       var menu = [
         { to: '/user/password', label: '修改密码' },
-        { to: '/user/wx', label: '微信绑定' }
+        // { to: '/user/wx', label: '微信绑定' }
       ]
       var info = [
         { to: '/user/info', label: '个人信息' }
       ]
-      if ([1, 5, 7, 8, 9].includes(this.roles[0])) {
-        return info.concat(menu)
-      }
+      // if ([1, 5, 7, 8, 9].includes(this.roles[0])) {
+      //   return info.concat(menu)
+      // }
       return menu
     }
   },

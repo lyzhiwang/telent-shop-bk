@@ -49,14 +49,14 @@ export default {
     TMap(this.key).then(qq => {
       this.qq = qq
          console.log('this.form.location', this.form.location)
-      var location = (this.form.location!==null && Object.keys(this.form.location).length===2)? this.form.location: { lat: 39.916527, lng: 116.397128 }
+      var location = (this.form.location!==null &&this.form.location!==undefined && Object.keys(this.form.location).length===2)? this.form.location: { latitude: 39.916527, longitude: 116.397128 }
 
       // 地图的中心地理坐标。
-      var center = new qq.maps.LatLng(location.lat, location.lng)
+      var center = new qq.maps.LatLng(location.latitude, location.longitude)
       // 初始化地图
       this.map = new qq.maps.Map(document.getElementById(this.id), { center, zoom: 15 })
       // 如果有缓存 标记地图中心
-      if (this.form.location && this.form.location.lat) this.setMarker(center)
+      if (this.form.location && this.form.location.latitude) this.setMarker(center)
 
       // 调用地址解析类
       this.geocoder = new qq.maps.Geocoder({
@@ -102,7 +102,7 @@ export default {
         map: this.map,
         position
       })
-      this.updateForm('location', position)
+      this.updateForm('location', {latitude: position.lat, longitude: position.lng})
     },
     // 确认使用所选商家位置
     submit() {
@@ -110,10 +110,11 @@ export default {
         this.$message('请填写商家位置')
         return
       }
-      if (!this.form.location.lat) {
+      if (!this.form.location.latitude) {
         this.$message('请选择商家位置')
         return
       }
+      this.updateForm('shop_address', this.address)
       this.$emit('hide')
     },
     // 重置并关闭模态框

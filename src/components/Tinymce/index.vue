@@ -5,7 +5,7 @@
       ref="tinymce"
       v-model="html"
       :class="['tinymce-textarea', disabled ? 'disabled' : '']"
-    ></textarea>
+    />
   </div>
 </template>
 
@@ -29,10 +29,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false
-    },
-    rParams: {
-      type: Object,
-      default: null
     }
   },
   data() {
@@ -45,7 +41,7 @@ export default {
       type: 4, // 上传文件类型
       newImgUrl: [], // 存储上传的图片
       loading: null, // loading加载弹框
-      loadingImg: {}, // 用于校验图片是否上传
+      loadingImg: { }, // 用于校验图片是否上传
       checkImgRepet: []// 用于校验图片是否重复
     }
   },
@@ -109,7 +105,8 @@ export default {
           res = res && item
         }
         if (!res) {
-          this.$emit('change', this.replaceImage(this.html), this.rParams)
+          console.log('完成')
+          this.$emit('change', this.replaceImage(this.html))
           this.setContent()
           setTimeout(() => {
             this.loading.close()
@@ -117,6 +114,8 @@ export default {
         }
       }
     }
+  },
+  created() {
   },
   mounted() {
     if (this.mode === 'default') {
@@ -196,12 +195,12 @@ export default {
           this.hasInit = true
           editor.on('NodeChange Change KeyUp SetContent', () => {
             this.hasChange = true
-            this.$emit('change', editor.getContent(), this.rParams)
+            this.$emit('change', editor.getContent())
           })
         },
         // 文件管理 相关配置字段
         filery_dialog_height: '402px',
-        filery_api_url: (process.env.NODE_ENV === 'development' ? process.env.VUE_APP_BASE_API : window.location.protocol + `//api.` + window.location.host + '/api') + '/upload', // 获取文件的url
+        filery_api_url: process.env.VUE_APP_BASE_API + '/upload', // 获取文件的url
         filery_api_token: 'Bearer ' + getToken(), // 获取用户的token 本地token
         filery_upload_api_url: this.config.upload_url, // 上传地址
         filery_upload_params: this.params, // 上传参数
@@ -212,7 +211,7 @@ export default {
         images_upload_handler: (blobInfo, success, failure) => {
           const xhr = new XMLHttpRequest()
           const formData = new FormData()
-
+          console.log('进入图片上传')
           xhr.withCredentials = false
           xhr.open('POST', this.config.upload_url)
           xhr.setRequestHeader('Authorization', 'Bearer ' + getToken())
@@ -244,20 +243,15 @@ export default {
               success(json.location)
             }
           }
+          console.log('图片上传成功',formData)
           xhr.send(formData)
         },
         //  https://www.jianshu.com/p/1e910124eacf
         // 处理url替换
         urlconverter_callback: (url, node, on_save, name) => {
-          const assignUrl = [this.$store.state.config.domain, 'https://static.zwmstk.cn', 'https://dou.zwwltkl.com/', 'https://static.lyskedas.cn', 'https://common.zwwltkl.com/']// 设置白名单
-          // oem七牛云的白名单
-          if (process.env.VUE_APP_IS_OEM === '1') {
-            let href = window.location.origin
-            const arr = href.split('.')
-            if (arr[0]) href = href.replace(arr[0], arr[0].split('//')[0] + '//static')
-            assignUrl.push(href)
-          }
-
+          console.log('处理图像url')
+          // 'https://static.zwwlhb.cn',
+          const assignUrl = ['https://static.zwmstk.cn', 'https://static.lyskedas.cn', 'https://common.zwwltkl.com/']// 设置白名单
           let isInnerUrl = false // 默认不是内部链接
           try {
             assignUrl.forEach(item => {
@@ -271,18 +265,19 @@ export default {
           }
           if (!isInnerUrl && (name === 'style' || (name === 'src' && node === 'img'))) {
             // 打开加载弹框
-            that.loading = that.$loading({
-              lock: true,
-              text: '文章图片上传中，请稍后',
-              spinner: 'el-icon-loading',
-              background: 'rgba(0, 0, 0, 0.7)'
-            })
+            // that.loading = that.$loading({
+            //   lock: true,
+            //   text: '文章图片上传中，请稍后',
+            //   spinner: 'el-icon-loading',
+            //   background: 'rgba(0, 0, 0, 0.7)'
+            // })
             // 兼容部分图片不带https头，手动校验添加
             const urlregex = /^(https?):.*/
             if (!urlregex.test(url)) url = 'https:' + url
-
+            console.log('urlurl', url)
             that.$set(that.loadingImg, url, true)
-            if (!that.checkImgRepet.includes(url)) { // 避免重复上传
+            console.log('that.checkImgRepet.includes(url)', that.checkImgRepet.includes(url))
+            if (that.checkImgRepet.includes(url)) { // 避免重复上传
               that.checkImgRepet.push(url)
               // 上传图片
               this.apiBtn('QnFetch', { url }).then(res => {
@@ -296,6 +291,7 @@ export default {
             } else {
               // 查询对应图片
               this.newImgUrl.map((item) => {
+                console.log('item', item)
                 if (url === item.oriUrl) {
                   url = item.filePath
                   that.$set(that.loadingImg, url, false)
@@ -308,7 +304,7 @@ export default {
         },
         setup: function(editor) {
           editor.on('change', function(e) {
-            that.$emit('change', window.tinyMCE.activeEditor.getContent(), this.rParams)
+            that.$emit('change', window.tinyMCE.activeEditor.getContent())
             // 将外部内容中图片的路径合并成一个数组
             // const imgs = []
             // const pre = that.$refs.tinymce.previousSibling
@@ -347,11 +343,11 @@ export default {
     handleUploadError(file) {
       return new Promise((resolve, reject) => {
         // 1.清空原来的失效token
-        this.$store.commit('config/SET_QINIU_STATE', { name: 'imgToken', value: '' })
-        this.$store.commit('config/SET_QINIU_STATE', { name: 'audioToken', value: '' })
+        this.$store.commit('config/SET_IMG_TOKEN', '')
+        this.$store.commit('config/SET_AUDIO_TOKEN', '')
         // 2.重新请求token
         this.$store
-          .dispatch('config/GetQiniuToken', { file_type: 'img' })
+          .dispatch('config/GetQiniuToken', { other: true })
           .then(res => {
             resolve(res)
             // 3.重新上传图片

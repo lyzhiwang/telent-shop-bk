@@ -13,8 +13,6 @@
         <template v-if="form.role_id===3">
           <!-- 基础 oem-->
           <user-base-oem ref="userBaseOem" :area-list="areaList" :form="form" @change="changeForm" />
-          <!-- 基础 运营-->
-          <!-- <user-base-operation ref="userBaseOperation" :form="form" @change="changeForm" /> -->
         </template>
 
         <template v-if="form.role_id===4">
@@ -80,12 +78,13 @@ export default {
     if (this.role_id ===3) {
       this.apiBtn('GetOemArea', { id: this.userId }).then(res => {
         let list = [...res.data]
-        list.map(v => {
-          v.disabled = true
-          v.children.map(i => {
-            i.disabled = true
-          })
-        })
+        // list.map(v => {
+        //   v.disabled = true
+        //   v.children.map(i => {
+        //     i.disabled = true
+        //   })
+        // })
+        console.log('list', list)
         this.agentAreaList = list
       })
     }
@@ -106,7 +105,8 @@ export default {
     getAdminInfo() {
       if (!this.$route.query.id) return
       this.apiBtn('AdminIndex', { id: this.$route.query.id }).then((res) => {
-        console.log(res)
+        this.form = res.data
+        this.form.role_id = res.data.role.id
       })
     },
     // 提交数据
@@ -146,7 +146,8 @@ export default {
             delete this.form.logo
             delete this.form.project_name
         }
-        this.apiBtn(this.form.id ? 'AdminUpdate' : 'AdminStore', { ...this.form }).then((res) => {
+        this.apiBtn(this.form.id ? 'AdminPut' : 'AdminStore', { ...this.form }).then((res) => {
+          this.$message.success('操作成功!')
           this.$router.go(-1)
         })
       }

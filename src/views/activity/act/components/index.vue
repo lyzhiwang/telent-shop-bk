@@ -33,11 +33,12 @@
             </el-date-picker>
           </el-form-item>
 
-          <el-form-item label="主推套餐" prop="main_package">
+          <el-form-item label="主推套餐" prop="main_package" v-if="form.type!==4">
             <el-input v-model="form.main_package" clearable></el-input>
           </el-form-item>
-          <el-form-item label="任务限制完成时间(小时)" prop="time_int">
+          <el-form-item label="任务完成限制(小时)" prop="time_int">
             <el-input-number :min="1" v-model="form.time_int" :controls="false"></el-input-number>
+            <p class="tips">*注: 此时间应填写为活动结束前多少小时必须完成任务.</p>
           </el-form-item>
 
           <el-form-item label="任务区域" prop="area">
@@ -50,6 +51,14 @@
               clearable
             />
           </el-form-item>
+          <el-form-item label="任务报名费用(元)" prop="activity_sing_money" v-if="form.type!==3">
+            <el-input-number :min="0" v-model="form.activity_sing_money" :controls="false"></el-input-number>
+            <p class="tips">*注: 当为0时表示不收费.大于0表示任务报名费用金额</p>
+          </el-form-item>
+          <el-form-item label="摄影师佣金(元)" prop="photo_man_money" v-if="form.type===4">
+            <el-input-number :min="0.1" v-model="form.photo_man_money" :controls="false"></el-input-number>
+          </el-form-item>
+
           <el-form-item label="轮播图" prop="img">
             <Upload :multiple="true" :limit="3" :imgUrl="imgUrl" :params="{type: 1}" @remove="removeSwiper" @change="changeSwiper"></Upload>
           </el-form-item>
@@ -62,6 +71,7 @@
             <Tinymce :html="form.careful_detail" @change="changeCarefulDetail" />
           </el-form-item>
 
+          <template v-if="form.type!==4">
           <tip title="达人要求" />
           <template v-if="form.type===1">
             <el-form-item label="素材下载收费" prop="source_pay_money">
@@ -73,6 +83,9 @@
             <el-input v-model.number="form.brokerage_rate" :min="1" placeholder="请输入带货佣金比">
               <template slot="append">%</template>
             </el-input>
+          </el-form-item>
+          <el-form-item label="最高带货佣金(元)" prop="tallest_brokerage">
+            <el-input-number :min="0" v-model="form.tallest_brokerage" :controls="false"></el-input-number>
           </el-form-item>
           <el-form-item label="团购等级" prop="start_level">
             <el-input v-model.number="form.start_level" :min="1" placeholder="请输入团购等级">
@@ -99,6 +112,7 @@
             </template>
           </el-row>
           </el-form-item>
+          </template>
 
 
           <template v-if="form.type===3">
@@ -124,15 +138,15 @@
           <el-form-item label="商家手机" prop="shop_phone">
             <el-input v-model.number="form.shop_phone" type="number" maxlength="11" placeholder="请输入商家联系方式" />
           </el-form-item>
-          <el-form-item label="抖音显示位置(PoiId)" prop="poi" class="dyPoi_box">
-            <el-input placeholder="请抖音搜索框搜门店地点，点开正确的门店，右上角箭头里面复制链接，点击解析地址" :disabled="dyPoiDis" v-model="form.poi">
-              <el-button slot="append" @click="parseUrl" v-if="!dyPoiDis">解析地址</el-button>
-              <el-button slot="append" @click="resetPoi" v-if="dyPoiDis">重置</el-button>
+          <el-form-item label="抖音poi门店名称" prop="poi">
+            <el-input placeholder="请填写正确的门店名称" v-model="form.poi">
+              <!-- <el-button slot="append" @click="parseUrl" v-if="!dyPoiDis">解析地址</el-button>
+              <el-button slot="append" @click="resetPoi" v-if="dyPoiDis">重置</el-button> -->
             </el-input>
-            <div class="tips">*注:请抖音搜索框搜门店地点，点开正确的门店，右上角箭头里面复制链接，然后点击解析地址 </div>
+            <!-- <div class="tips">*注:请抖音搜索框搜门店地点，点开正确的门店，右上角箭头里面复制链接，然后点击解析地址 </div> -->
         </el-form-item>
           <el-form-item label="商家地址" prop="shop_address">
-            <el-input v-model="form.shop_address" placeholder="请输入商家地址" />
+            <el-input v-model="form.shop_address" disabled placeholder="请点击选择位置按钮" />
             <el-button type="primary" @click="isMapShow=true" style="margin-left: 20px">选择位置</el-button>
           </el-form-item>
           <el-form-item>
@@ -175,24 +189,40 @@ import Map from "@/components/Tool/Map.vue";
         this.form = res.data
         this.form.start_level = Number(this.form.start_level)
         this.value1 = [this.form.start_time, this.form.end_time]
+        this.form.create_admin_user_id = res.data.belong_to_admin_id
+        this.form.activity_sing_money = Number(res.data.activity_sing_money)
+        this.form.brokerage_rate= Number(res.data.brokerage_rate)
         this.imgUrl = res.data.upload
         this.form.img = []
         this.form.upload.map(v => {
           this.form.img.push({upload_id:v.id})
         })
 
+      if (this.form.area) {
+        let arr = this.form.area.split(',')
+        let newArr = arr.map(Number)
+        if (newArr.length === 3) {
+          this.userArea.push(newArr)
+        } else {
+          for (let i = 2; i < newArr.length - 2; i++){
+            let arr1 = [newArr[0], newArr[1], newArr[i]]
+            this.userArea.push(arr1)
+          }
+        }
+      }
+
       })
     }
     //代理商拿自己userid 商家拿代理id
-    let currentId = this.role_id ===4? this.userId : this.create_admin_user_id
+    let currentId = Number(this.roles) === 4 ? this.userId : this.create_admin_user_id
       this.apiBtn('GetOemArea', { id: currentId }).then(res => {
         let list = [...res.data]
-        list.map(v => {
-          v.disabled = true
-          v.children.map(i => {
-            i.disabled = true
-          })
-        })
+        // list.map(v => {
+        //   v.disabled = true
+        //   v.children.map(i => {
+        //     i.disabled = true
+        //   })
+        // })
         this.agentAreaList = list
       })
     if (this.roles === 4) { // 代理获取商家列表
@@ -246,8 +276,8 @@ import Map from "@/components/Tool/Map.vue";
       areaProps: {
         value: 'id',
         label: 'name',
-        multiple: true,
-        checkStrictly: true
+        multiple: true
+        // checkStrictly: true
       },
       isMapShow: false, // 地图选择位置
       dyPoiDis: false, // poi解析禁用
@@ -264,10 +294,13 @@ import Map from "@/components/Tool/Map.vue";
         area: '',
         start_time: '',
         end_time: '',
-        award_rule: [{fans_num: 1000, money: 5}],
+        tallest_brokerage: 0, //最高带货佣金
+        activity_sing_money: 0, // 任务报名费用
+        award_rule: [{fans_num: 100, money: 1}],
         create_admin_user_id: '',//代理商创建任务- 传商家ID，商家创建-传自己ID
         img: [],//轮播图
         source_pay_money: 0, // 开启素材下载收费金额 大于0代表开启收费
+        photo_man_money: null, // 摄影师佣金
         shop_name: '',
         shop_phone: '',
         shop_address: '',
@@ -319,6 +352,9 @@ import Map from "@/components/Tool/Map.vue";
           { required: true, message: '请输入团购等级', trigger: 'blur' },
           { type: 'number', message: '必须为数字值'}
         ],
+        photo_man_money: [
+          { required: true, message: '请输入摄影师佣金', trigger: 'blur' }
+        ],
         shop_name: [
           { required: true, message: '请输入商家名称', trigger: 'blur' }
         ],
@@ -329,7 +365,7 @@ import Map from "@/components/Tool/Map.vue";
           { required: true, message: '请选择任务归属商家', trigger: 'blur' }
         ],
         poi: [
-          { required: true, message: '请填写链接并解析poi', trigger: 'blur' }
+          { required: true, message: '请填写正确的门店名称', trigger: 'blur' }
         ],
         // shop_address: [
         //   { required: true, validator: validateShopAddress, trigger: 'blur' }
@@ -381,14 +417,14 @@ import Map from "@/components/Tool/Map.vue";
       this.dyPoiDis = false
     },
     updateForm (e,val) {
-      console.log('e', e, val)
-      this.form.location = val
+      this.form[e] = val
      },
     // 选择地区
     changeArea (e) {
       let arr = this._.uniq(this._.flattenDeep([...e]))
       this.form.area = arr.toString()
-      console.log('this.form', this.form)
+      console.log('area', this.form.area)
+      console.log('userArea', this.userArea)
     },
     // 详情
     changeDetail (e) {
@@ -407,10 +443,14 @@ import Map from "@/components/Tool/Map.vue";
       this.form.img.push({upload_id: e.id})
     },
     onSubmit (formName) {
-      console.log('this.form', this.form)
+      if (this.form.type === 4) {
+        let arr = ['award_rule', 'brokerage_rate', 'main_package', 'source_pay_money', 'start_level', 'substitution_good', 'tallest_brokerage']
+        for (let i = 0; i < arr.length - 1; i++){
+          delete this.form[arr[i]]
+        }
+      }
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          // this.form.id?'ActivityPut' :
           this.apiBtn(this.form.id?'ActivityPut' :'ActivityStore', this.form).then(res => {
             this.$message.success('操作成功!')
              this.$router.go(-1)

@@ -80,7 +80,7 @@ export default {
       userInfo: {
         username: '',
         password: '',
-        captcha: '31646',
+        captcha: '',
         key: ''
       },
       loginRules: {

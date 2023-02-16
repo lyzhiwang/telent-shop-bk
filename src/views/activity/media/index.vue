@@ -13,7 +13,7 @@
                 :label="item.name"
                 :name="String(item.id)"
               >
-              <div class="media-box" v-if="$route.query.type===1">
+              <div class="media-box" v-if="Number($route.query.type)===1">
                 <div class="marginR">
                   <!-- <span class="marginR spanmove">请选择移动</span>
                   <el-select  v-model="selectIndex" placeholder="请选择模块" clearable @change="selectIndexBtn">
@@ -22,10 +22,10 @@
                   <el-button  size="small" type="primary" plain @click="selectAll">全选</el-button> -->
                   <el-button size="small" type="primary" @click="isDrawer=true">上传视频</el-button>
                 </div>
-                <div class="videoList">
+                <div class="videoList" v-if="mediaList.length>0">
                   <div class="li" v-for="(item,index) in mediaList" :key="index">
                     <div class="top-left">id: {{ item.id }}</div>
-                    <el-image :src="`${item.upload.full_path}?vframe/png/offset/1`" fit="contain" class="li-image"></el-image>
+                    <el-image :src="`${item.upload.full_path}?vframe/jpg/offset/1/w/200`" fit="contain" class="li-image"></el-image>
                     <div class="deleteBox">
                       <i class="el-icon-delete top-right" @click="removeVideo(item)"></i>
                     </div>
@@ -88,7 +88,7 @@ export default {
         activity_id: '',
         type_id: '',
         page: 1,
-        size: 10
+        size: 100000
       },
       mediaList: [],
       rules: {
@@ -184,6 +184,7 @@ export default {
   .videoList{
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     .li{
       width: 200px;

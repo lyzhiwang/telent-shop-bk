@@ -34,13 +34,40 @@
         {{ slotProps.scope.row.join_num }}
       </template>
 
+      <!-- 任务信息 -->
+      <template v-slot:info="props">
+        <div class="info-box" style="flex-de">
+          <div>充值总金额: <span style="color: #F56C6C">{{ props.scope.row.total }}元</span></div>
+          <div>余额: <span style="color: #67C23A">{{ props.scope.row.balance_money }}元</span></div>
+          <div>活动参与人数限制: {{ props.scope.row.join_num }}人</div>
+          <div>活动已经参与人数: {{ props.scope.row.join_num_copy }}人</div>
+          <div>活动剩余可参与人数: <span style="color: #67C23A">{{ props.scope.row.join_num-props.scope.row.join_num_copy }}人</span></div>
+        </div>
+
+      </template>
+
       <!-- 时间 -->
       <template v-slot:time="slotProps">
         {{ slotProps.scope.row.start_time + ' ~ ' + slotProps.scope.row.end_time }}
       </template>
 
+      <!-- 状态-->
+      <template v-slot:status="slotProps">
+        <div class="status-box">
+          <template v-if="slotProps.scope.row.status===1">
+            <span class="el-button--primary circle"></span>开始
+          </template>
+          <template v-else-if="slotProps.scope.row.status===2">
+            <span class="el-button--info circle"></span>暂停
+          </template>
+          <template v-else>
+            <span class="el-button--danger circle"></span>结算
+          </template>
+        </div>
+      </template>
+
       <!-- 活动暂停功能 -->
-      <template v-slot:status="props">
+      <template v-slot:switch="props">
         <el-tooltip :content="props.scope.row.status === 1 ? '当前状态：开启' : '当前状态：暂停'" placement="top">
           <el-switch v-model="props.scope.row.status" :active-value="1" :inactive-value="2" @change="changeSwitch('ActivityPause', props.scope.row)" />
         </el-tooltip>
@@ -70,22 +97,25 @@
         >报名列表</el-button>
         <el-button
           v-has="'PrestoredStore'"
+          v-if="slotProps.scope.row.type!==3"
           type="danger"
           size="mini"
           @click="recharge(slotProps.scope.row)"
         >充值</el-button>
         <el-button
           v-has="'ActivityPut'"
+          v-if="Number(slotProps.scope.row.status===2)"
           type="primary"
           size="mini"
           @click="editActivity(slotProps.scope.row)"
         >编辑</el-button>
-        <!-- <el-button
-          v-has="'ActivityDestory'"
+        <el-button
+          v-has="'ActivityReturnBalance'"
+          v-if="Number(slotProps.scope.row.status===3) && Number(slotProps.scope.row.balance_money>0) "
           type="danger"
           size="mini"
-          @click="deleteActivity(slotProps.scope.row)"
-        >删除</el-button> -->
+          @click="returnBalance(slotProps.scope.row)"
+        >返还金额</el-button>
         </div>
 
       </template>
@@ -127,34 +157,36 @@ export default {
         },
         {
           prop: 'title',
-          label: '活动名称',
+          label: '任务名称',
+          width: 250,
           isCustomize: true
-        },
-        // {
-        //   prop: 'type',
-        //   label: '类型',
-        //   width: 250,
-        //   isCustomize: true
-        // },
-        {
-          prop: 'join_num',
-          label: '参与人数',
-          width: 200
         },
         {
           prop: 'shop_name',
           label: '商家名称'
         },
         {
-          prop: 'time',
-          label: '活动时间',
-          width: 300,
+          prop: 'info',
+          label: '任务信息',
+          isCustomize: true,
+          // width: 300
+        },
+        {
+          prop: 'switch',
+          label: '任务开关',
+          width: 150,
           isCustomize: true
         },
         {
           prop: 'status',
-          label: '状态',
+          label: '任务状态',
           width: 150,
+          isCustomize: true
+        },
+        {
+          prop: 'time',
+          label: '任务时间',
+          width: 300,
           isCustomize: true
         },
         {
@@ -220,10 +252,25 @@ export default {
     showPause(val) {
       return !('24'.indexOf(val) >= 0 && this.$_has('ActivityPause'))
     },
+
+    // 活动返还金额
+    returnBalance (row) {
+      this.$confirm('此操作将返还该活动金额, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }).then(() => {
+        this.apiBtn('ActivityReturnBalance', { id: row.id }).then(res => {
+          this.$message.success('操作成功!')
+        })
+      }).catch(() => {
+
+      })
+    },
     // 开关控制 码上拓客没有活动暂停
     changeSwitch (name, row) {
       console.log('row.status', row.status)
-      const msg = (row.status === 2 ? '将要暂停' : '将要开启') + '活动“' + row.title + '(' + row.id + ')”,是否继续？'
+      const msg = (row.status === 2 ? '将要暂停' : '将要开启') + '活动“' + row.title + '(id:' + row.id + ')”,是否继续？'
       const params = {
         id: row.id,
         status: row.status
@@ -259,6 +306,27 @@ export default {
   ::v-deep .el-button{
     margin-bottom: 5px;
   }
+}
+.status-box{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .circle{
+  width: 6px;
+  height: 6px;
+  display: block;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+}
+.info-box{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 </style>

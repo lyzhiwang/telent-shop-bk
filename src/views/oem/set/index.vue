@@ -47,7 +47,7 @@
                 <el-form-item label="首页分享图片" class="activity-share_image">
                   <FileManager :value="form.share_img" :page-size="8" :type="1" :size="500" @change="changeSharePic" />
                 </el-form-item>
-                <div class="tip-font">1.图片尺寸：1:1；2.图片大小必须小于100KB</div>
+                <div class="tip-font">1.图片尺寸:500px*400px（宽*高） 比例5:4；2.图片大小必须小于100KB</div>
               </template>
 
               <tip title="客服信息" />
@@ -168,7 +168,8 @@ export default {
       this.form.img.push({ upload_id: e.id })
     },
     removeSwiper (file) {
-      const fileId = file.response.data.id
+      console.log('file', file)
+      const fileId =file.id || file.response.data.id
       const index = this.form.img.findIndex(v => { return v.upload_id === fileId })
       if (index >= 0) {
        this.form.img.splice(index,1)
