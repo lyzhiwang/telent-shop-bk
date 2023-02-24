@@ -13,7 +13,7 @@
             <el-input v-model="form.title" clearable></el-input>
           </el-form-item>
           <el-form-item label="任务类型" prop="type">
-            <el-radio-group v-model="form.type" >
+            <el-radio-group v-model="form.type">
               <el-radio v-for="(item,index) in actType" :key="index" :disabled="$route.query.id? true: false" :label="item.id">{{ item.name }}</el-radio>
             </el-radio-group>
           </el-form-item>
@@ -94,23 +94,25 @@
             </el-input>
           </el-form-item>
           <el-form-item label="任务类型" prop="award_rule">
-            <el-button type="primary" @click="addItem" size="mini">新增类型</el-button>
-          <el-row v-for="(item, index) in form.award_rule" :key="index" class="liBox">
-            <el-col :span="2">粉丝数量(人)：</el-col>
-            <el-col :span="4" class="fans_box">
-              <el-input-number v-model="item.fans_num" :min="1" :controls="false">
-              </el-input-number>
-              <!-- <el-input v-model.number="item.fans_num" type="number"></el-input> -->
-            </el-col>
-            <el-col :span="2">任务金额(元)：</el-col>
-            <el-col :span="4" class="fans_box">
-              <el-input-number v-model="item.money" :min="0.1" :controls="false">
-            </el-input-number>
-            </el-col>
-            <template v-if="index!==0 && form.award_rule.length===index+1">
-              <el-button type="danger" icon="el-icon-delete" circle @click.prevent="removeItem(item)"></el-button>
-            </template>
-          </el-row>
+            <el-button type="primary" @click="addItem" size="mini"  v-if="form.type!==3">新增类型</el-button>
+            <br v-if="form.type===3"/>
+            <el-row v-for="(item, index) in form.award_rule" :key="index" class="liBox">
+              <el-col :span="2">粉丝数量(人)：</el-col>
+              <el-col :span="4" class="fans_box">
+                <el-input-number v-model="item.fans_num" :min="1" :controls="false">
+                </el-input-number>
+              </el-col>
+              <template v-if="form.type!==3">
+                <el-col :span="2">任务金额(元)：</el-col>
+                <el-col :span="4" class="fans_box">
+                  <el-input-number v-model="item.money" :min="0.1" :controls="false">
+                </el-input-number>
+                </el-col>
+              </template>
+              <template v-if="index!==0 && form.award_rule.length===index+1">
+                <el-button type="danger" icon="el-icon-delete" circle @click.prevent="removeItem(item)"></el-button>
+              </template>
+            </el-row>
           </el-form-item>
           </template>
 
@@ -128,7 +130,7 @@
           <tip title="商家信息" />
            <!-- 代理帮商家创建任务 -->
           <el-form-item label="选择商家" v-if="roles===4" prop="create_admin_user_id">
-            <el-select v-model="form.create_admin_user_id" placeholder="请选择任务归属商家" :disabled="$route.query.id? true: false">
+            <el-select v-model="form.create_admin_user_id" placeholder="请选择任务归属商家" :disabled="$route.query.id? true: false" @change="changeShop">
               <el-option v-for="(item,index) in userList" :key="index" :label="`${item.username}(id:${item.id})`" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
@@ -383,6 +385,17 @@ import Map from "@/components/Tool/Map.vue";
     }
   },
   methods: {
+    // 代理切换商家回显商家信息
+    changeShop(e){
+      const obj = this.userList.find(v=>{ return v.id === e})
+      console.log('obj', obj)
+      if(Object.keys(obj).length>0){
+        this.form.shop_name = obj.shop_name
+        this.form.shop_phone = obj.shop_phone
+        this.form.location = obj.location
+        this.form.shop_address = obj.shop_address
+      }
+    },
     //添加
     addItem () {
       const lastNum = (this.form.award_rule[this.form.award_rule.length-1].fans_num) + 50
@@ -449,6 +462,10 @@ import Map from "@/components/Tool/Map.vue";
           delete this.form[arr[i]]
         }
       }
+      if(this.form.type===3){ // 置换
+        this.form.award_rule[0].money =0
+      }
+      console.log('this.form', this.form)
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.apiBtn(this.form.id?'ActivityPut' :'ActivityStore', this.form).then(res => {

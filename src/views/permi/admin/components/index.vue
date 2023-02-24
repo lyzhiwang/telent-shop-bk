@@ -59,9 +59,11 @@ export default {
         project_name: '', // 项目名称
         logo: '', // 项目logo
         is_trusteeship: 0, // 是否托管(针对商家)
+        shop_tag_id: '', // 商家分类
         shop_name: '', // 商家名称
         shop_phone: '', // 商家电话
         shop_address: '', // 商家地址
+        location: {},
         activity_sing_money: 0 // 活动报名金额
       },
       areaList: [],
@@ -122,6 +124,8 @@ export default {
           delete this.form.area
           delete this.form.logo
           delete this.form.project_name
+          delete this.form.location
+          delete this.form.shop_tag_id
         }
         if (this.form.role_id === 3) {
           delete this.form.is_trusteeship
@@ -129,6 +133,8 @@ export default {
           delete this.form.shop_phone
           delete this.form.shop_address
           delete this.form.activity_sing_money
+          delete this.form.location
+          delete this.form.shop_tag_id
         }
         if (this.form.role_id === 4) {
           delete this.form.date
@@ -139,6 +145,8 @@ export default {
           delete this.form.shop_phone
           delete this.form.shop_address
           delete this.form.activity_sing_money
+          delete this.form.location
+          delete this.form.shop_tag_id
         }
         if (this.form.role_id === 5) {
             delete this.form.date

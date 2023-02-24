@@ -37,8 +37,10 @@
       <!-- 任务信息 -->
       <template v-slot:info="props">
         <div class="info-box" style="flex-de">
-          <div>充值总金额: <span style="color: #F56C6C">{{ props.scope.row.total }}元</span></div>
-          <div>余额: <span style="color: #67C23A">{{ props.scope.row.balance_money }}元</span></div>
+          <template v-if="props.scope.row.type!==3">
+            <div>充值总金额: <span style="color: #F56C6C">{{ props.scope.row.total }}元</span></div>
+            <div>余额: <span style="color: #67C23A">{{ props.scope.row.balance_money }}元</span></div>
+          </template>
           <div>活动参与人数限制: {{ props.scope.row.join_num }}人</div>
           <div>活动已经参与人数: {{ props.scope.row.join_num_copy }}人</div>
           <div>活动剩余可参与人数: <span style="color: #67C23A">{{ props.scope.row.join_num-props.scope.row.join_num_copy }}人</span></div>

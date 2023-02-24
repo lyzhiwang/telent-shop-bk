@@ -172,7 +172,8 @@ export default {
   },
   methods: {
     // 切换列表类型
-    changeType(e){
+    changeType (e) {
+      this.tabPosition = e
       if (e === 0) {
         this.formSearch = {
           star: 1
@@ -186,11 +187,13 @@ export default {
     },
     star (type) {
       if (type === 1) {
+        this.tabPosition = 0
         this.formSearch = {
           star: 0,
           submit: 1
         }
       } else {
+        this.tabPosition = 1
         this.formSearch = {
           photo: 0,
           psubmit: 1
@@ -234,6 +237,7 @@ export default {
           this.apiBtn(apiName, { id: row.id, is_star: this.tabPosition===0? 1: '0' }).then(res => {
             this.$message.success('操作成功')
             this.getList()
+            this.getUserCount()
           })
         }).catch(action => {
 
