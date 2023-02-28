@@ -7,7 +7,7 @@
       :pagination="pagination"
       :hasSelection="false"
       @changeMultipleSelection="changeSelection"
-      @refreshTable="search"
+      @refreshTable="search1"
     >
       <template v-slot:search>
         <!-- <el-select v-model="formSearch.type" placeholder="请选择活动类型" clearable @change="search">
@@ -236,6 +236,18 @@ export default {
       this.formSearch[key]=value
       this.pagination.page = 1
       this.getList()
+    },
+    search1(pagination){
+      const params = {
+        ...pagination, ...this.formSearch
+      }
+      this.listLoading = true
+      this.apiBtn('SignIndex', params)
+        .then(res => {
+          this.tagList = res.data
+          this.pagination.total = res.meta.total
+          this.listLoading = false
+        })
     },
     // 用户列表
     getList() {

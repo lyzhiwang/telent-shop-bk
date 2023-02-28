@@ -47,11 +47,13 @@
        <!-- 达人等级截图-->
       <template v-slot:level_img="slotProps">
         <el-image
+          v-if="slotProps.scope.row.level_img!==null"
           fit="fill"
           style="width: 100px; height: 100px"
           :src="slotProps.scope.row.level_img.full_path"
           :preview-src-list="[slotProps.scope.row.level_img.full_path]">
         </el-image>
+        <span v-else>暂无图片</span>
         <!-- {{ slotProps.scope.row.star_level? slotProps.scope.row.star_level: '暂无'}} -->
       </template>
 

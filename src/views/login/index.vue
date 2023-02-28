@@ -132,6 +132,7 @@ export default {
           this.$store.dispatch('user/Login', this.userInfo)
             .then(() => {
               this.loading = false
+              this.$message.success('登录成功!');
               // { path: this.redirect ||'/' } 可以重定向到上次退出界面，但是如果权限角色改变，若用户不具备该页面权限，页面为空白
               this.$router.push({ path: '/dashboard' })
             }).catch(() => {

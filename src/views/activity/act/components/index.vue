@@ -456,6 +456,9 @@ import Map from "@/components/Tool/Map.vue";
       this.form.img.push({upload_id: e.id})
     },
     onSubmit (formName) {
+      if(this.$route.query.id){
+        this.form.id = this.$route.query.id
+      }
       if (this.form.type === 4) {
         let arr = ['award_rule', 'brokerage_rate', 'main_package', 'source_pay_money', 'start_level', 'substitution_good', 'tallest_brokerage']
         for (let i = 0; i < arr.length - 1; i++){

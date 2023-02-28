@@ -123,6 +123,7 @@ export default {
     },
     async logout() {
       await this.$store.dispatch('user/LogOut')
+      this.$message.success('已退出登录!');
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     },
     // 清除前后台缓存
