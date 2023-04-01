@@ -6,6 +6,7 @@
       :table-data="tagList"
       :pagination="pagination"
       :hasSelection="false"
+      :hasSearch="roles<4"
       @changeMultipleSelection="changeSelection"
       @refreshTable="getList"
     >
@@ -86,6 +87,12 @@
       <template v-slot:status="slotProps">
         {{ keyText(slotProps.scope.row.status) }}
       </template>
+
+      <!-- 抖音授权状态 -->
+      <template v-slot:is_authorization_expires="slotProps">
+        {{ slotProps.scope.row.is_authorization_expires && slotProps.scope.row.is_wait===0? '通过': '未通过' }}
+      </template>
+
       <!-- 操作 -->
       <template v-slot:action="slotProps">
         <div class="btns">
@@ -133,14 +140,18 @@ export default {
   },
   created () {
     this.getList()
-    this.getUserCount()
-    this.apiBtn('OemConfigShow', { id: this.userId }).then(res => {
+    if(this.roles<4){
+      this.getUserCount()
+      this.apiBtn('OemConfigShow', { id: this.userId }).then(res => {
       this.oem_info = res.data
     })
+    }
+
   },
   computed: {
      ...mapState({
-        userId: state => state.user.userId
+        userId: state => state.user.userId,
+        roles: state => state.user.roles[0]
       })
   },
   watch: {
@@ -156,7 +167,7 @@ export default {
           {prop: 'fans_num',label: '粉丝数量',isCustomize: true},
           {prop: 'favour_num',label: '获赞数量',isCustomize: true},
           {prop: 'status',label: '状态',width: 150,isCustomize: true},
-          {prop: 'action',label: '操作',width: 250,isCustomize: true}
+          {prop: 'is_authorization_expires',label: '抖音授权',width: 150,isCustomize: true}
         ]
       } else {
         this.tableHeader = [
@@ -165,10 +176,10 @@ export default {
           {prop: 'working_hours',label: '摄影师工作年限',isCustomize: true},
           {prop: 'good_at',label: '摄影师擅长领域',isCustomize: true},
           {prop: 'equipment',label: '摄影师工作设备',isCustomize: true},
-          {prop: 'status',label: '状态',width: 150,isCustomize: true},
-          {prop: 'action',label: '操作',width: 250,isCustomize: true}
+          {prop: 'status',label: '状态',width: 150,isCustomize: true}
         ]
       }
+      if(this.roles<4) this.tableHeader.push({prop: 'action',label: '操作',width: 250,isCustomize: true})
     }
     }
   },
@@ -176,6 +187,7 @@ export default {
     // 切换列表类型
     changeType (e) {
       this.tabPosition = e
+      this.pagination.page = 1
       if (e === 0) {
         this.formSearch = {
           star: 1

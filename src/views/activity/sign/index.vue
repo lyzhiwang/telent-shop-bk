@@ -5,6 +5,7 @@
       :table-header="tableHeader"
       :table-data="tagList"
       :pagination="pagination"
+      :hasSearch="act_type!==5"
       :hasSelection="false"
       @changeMultipleSelection="changeSelection"
       @refreshTable="search1"
@@ -69,12 +70,13 @@
       <!-- 操作 -->
       <template v-slot:action="slotProps">
         <div class="btns">
+          <template v-if="act_type!==5">
           <el-button
           type="primary"
           size="mini"
           @click="toDetail(slotProps.scope.row)"
         >详情</el-button>
-        <el-button
+          <el-button
           v-has="'ActivitySignAudit'"
           v-if="slotProps.scope.row.status===0 && formSearch.type!==1"
           type="warning"
@@ -95,6 +97,8 @@
           size="mini"
           @click="toRedirect('ActivityUrlAudit',{id:slotProps.scope.row.activity_id, task_id: slotProps.scope.row.id})"
         >素材审核</el-button>
+        </template>
+
         </div>
 
       </template>

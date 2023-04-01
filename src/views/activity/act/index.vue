@@ -23,7 +23,8 @@
           <el-tag v-if="slotProps.scope.row.type===1" size="mini" effect="dark">云剪</el-tag>
           <el-tag v-else-if="slotProps.scope.row.type===2" size="mini" type="success" effect="dark">实探</el-tag>
           <el-tag v-else-if="slotProps.scope.row.type===3" size="mini" type="warning" effect="dark">置换</el-tag>
-          <el-tag v-else size="mini" type="danger" effect="dark">摄影师</el-tag>
+          <el-tag v-else-if="slotProps.scope.row.type===4" size="mini" type="danger" effect="dark">摄影师</el-tag>
+          <el-tag v-else size="mini" color="#7d18fe" type="info" :hit="false" effect="dark">纯佣</el-tag>
         </div>
 
       </template>
@@ -70,9 +71,12 @@
 
       <!-- 活动暂停功能 -->
       <template v-slot:switch="props">
-        <el-tooltip :content="props.scope.row.status === 1 ? '当前状态：开启' : '当前状态：暂停'" placement="top">
-          <el-switch v-model="props.scope.row.status" :active-value="1" :inactive-value="2" @change="changeSwitch('ActivityPause', props.scope.row)" />
-        </el-tooltip>
+        <template v-if="props.scope.row.status!==3">
+          <el-tooltip :content="props.scope.row.status === 1 ? '当前状态：开启' : '当前状态：暂停'" placement="top">
+            <el-switch v-model="props.scope.row.status" :active-value="1" :inactive-value="2" @change="changeSwitch('ActivityPause', props.scope.row)" />
+          </el-tooltip>
+        </template>
+        <template v-else>活动已结算</template>
       </template>
       <!-- 操作 -->
       <template v-slot:action="slotProps">
@@ -81,7 +85,7 @@
           v-has="'TypeIndex'"
           type="primary"
           size="mini"
-          v-if="slotProps.scope.row.type===1"
+          v-if="[1,5].includes(slotProps.scope.row.type)"
           @click="toRedirect('TypeIndex',{id:slotProps.scope.row.id,type:1})"
         >素材列表</el-button>
         <el-button
@@ -99,7 +103,7 @@
         >报名列表</el-button>
         <el-button
           v-has="'PrestoredStore'"
-          v-if="slotProps.scope.row.type!==3"
+          v-if="[1,2,4].includes(slotProps.scope.row.type)&& Number(slotProps.scope.row.status!==3)"
           type="danger"
           size="mini"
           @click="recharge(slotProps.scope.row)"
@@ -113,7 +117,7 @@
         >编辑</el-button>
         <el-button
           v-has="'ActivityReturnBalance'"
-          v-if="Number(slotProps.scope.row.status===3) && Number(slotProps.scope.row.balance_money>0) "
+          v-if="[1,2,4].includes(slotProps.scope.row.type) && Number(slotProps.scope.row.status===3) && Number(slotProps.scope.row.balance_money>0) "
           type="danger"
           size="mini"
           @click="returnBalance(slotProps.scope.row)"
@@ -149,7 +153,7 @@ export default {
         name: '',
         type: 1
       },
-      tagTypeList: [{ id: 1, name: '云剪' }, { id: 2, name: '实探' }, { id: 3, name: '置换' },{id: 4,name: '摄影师'}],
+      tagTypeList: [{ id: 1, name: '云剪' }, { id: 2, name: '实探' }, { id: 3, name: '置换' },{id: 4,name: '摄影师'},{id: 5,name: '纯佣'}],
       tableHeader: [
         {
           prop: 'id',

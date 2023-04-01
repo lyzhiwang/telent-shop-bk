@@ -6,10 +6,10 @@
           <div style="margin-bottom: 20px;">
             <el-button size="small" type="primary" @click="addTab">新建分类</el-button>
           </div>
-            <el-tabs v-model="form.type_id" type="card" @tab-click="select">
+            <el-tabs v-model="form.type_id" type="card" @tab-click="select" closable @tab-remove="tabRemove">
               <el-tab-pane
                 v-for="(item, index) in typeList"
-                :key="index"
+                :key="item.id"
                 :label="item.name"
                 :name="String(item.id)"
               >
@@ -132,8 +132,25 @@ export default {
       this.getTypeMediaList()
     },
     // 删除分类
-    removeTab () {
-
+    tabRemove (id) {
+      this.$confirm('此操作将永久删除该分类(注:分类下视频素材将同步删除), 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.apiBtn('MediaTypeDestroy', {id: id}).then(res=>{
+            let index  = this.typeList.findIndex(v=>{return v.id===Number(id)})
+            if(index>-1) this.typeList.splice(index,1)
+            if(this.typeList.length>0) this.form.type_id = String(this.typeList[0].id)
+            this.getTypeMediaList()
+            this.$message.success('操作成功!')
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
     },
     // 关闭弹窗
     close () {
@@ -150,6 +167,22 @@ export default {
 
     // 删除分类下视频
     removeVideo (item) {
+      this.$confirm('此操作将永久删除该素材, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.apiBtn('ActivityMediaDel', {id: item.id}).then(res=>{
+            let index  = this.mediaList.findIndex(v=>{return v.id===item.id})
+            if(index>-1) this.mediaList.splice(index,1)
+            this.$message.success('操作成功!')
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
 
     },
 

@@ -29,6 +29,8 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
+              :picker-options="pickerOptions"
+              :unlink-panels="true"
               @change="changeDate">
             </el-date-picker>
           </el-form-item>
@@ -51,7 +53,7 @@
               clearable
             />
           </el-form-item>
-          <el-form-item label="任务报名费用(元)" prop="activity_sing_money" v-if="form.type!==3">
+          <el-form-item label="任务报名费用(元)" prop="activity_sing_money" v-if="![3,5].includes(form.type)">
             <el-input-number :min="0" v-model="form.activity_sing_money" :controls="false"></el-input-number>
             <p class="tips">*注: 当为0时表示不收费.大于0表示任务报名费用金额</p>
           </el-form-item>
@@ -61,6 +63,10 @@
 
           <el-form-item label="轮播图" prop="img">
             <Upload :multiple="true" :limit="3" :imgUrl="imgUrl" :params="{type: 1}" @remove="removeSwiper" @change="changeSwiper"></Upload>
+          </el-form-item>
+
+          <el-form-item label="活动规则" prop="activity_rule">
+            <Tinymce :html="form.activity_rule" @change="changeRule" />
           </el-form-item>
 
           <el-form-item label="任务详情" prop="detail">
@@ -73,7 +79,7 @@
 
           <template v-if="form.type!==4">
           <tip title="达人要求" />
-          <template v-if="form.type===1">
+          <template v-if="[1,5].includes(form.type)">
             <el-form-item label="素材下载收费" prop="source_pay_money">
               <el-input-number v-model="form.source_pay_money" :min="0" :max="100" :controls="false"></el-input-number>
               <p class="tips">*注: 当为0时表示不收费.大于0表示素材收费金额,最大可设置100</p>
@@ -94,15 +100,15 @@
             </el-input>
           </el-form-item>
           <el-form-item label="任务类型" prop="award_rule">
-            <el-button type="primary" @click="addItem" size="mini"  v-if="form.type!==3">新增类型</el-button>
-            <br v-if="form.type===3"/>
+            <el-button type="primary" @click="addItem" size="mini"  v-if="![3,5].includes(form.type)">新增类型</el-button>
+            <br v-if="[3,5].includes(form.type)"/>
             <el-row v-for="(item, index) in form.award_rule" :key="index" class="liBox">
               <el-col :span="2">粉丝数量(人)：</el-col>
               <el-col :span="4" class="fans_box">
                 <el-input-number v-model="item.fans_num" :min="1" :controls="false">
                 </el-input-number>
               </el-col>
-              <template v-if="form.type!==3">
+              <template v-if="![3,5].includes(form.type)">
                 <el-col :span="2">任务金额(元)：</el-col>
                 <el-col :span="4" class="fans_box">
                   <el-input-number v-model="item.money" :min="0.1" :controls="false">
@@ -273,6 +279,45 @@ import Map from "@/components/Tool/Map.vue";
       else callback(new Error('请填写地址并获取地理位置!'))
     }
     return {
+      pickerOptions: {
+          shortcuts: [{
+            text: '选择一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              end.setTime(end.getTime() + 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '选择三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              end.setTime(end.getTime() + 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          },{
+            text: '选择一年',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              end.setTime(end.getTime() + 3600 * 1000 * 24 * 365);
+              picker.$emit('pick', [start, end]);
+            }
+          }],
+          disabledDate(time) {
+            let now = new Date();   //获取此时的时间
+            let nowData = new Date(  //获取此时年月日的后一天
+              now.getFullYear()+ 1,
+              now.getMonth(),
+              now.getDate() + 1 //获取明天
+            );
+
+            return (
+              time.getTime() > nowData.getTime() - 1000  //可以选择到今天的xxx:xxx:xxx:23:59:59，只有的全部disabled
+            );
+          }
+        },
       agentAreaList: [], // 地理位置数据
       userArea: [],
       areaProps: {
@@ -283,7 +328,7 @@ import Map from "@/components/Tool/Map.vue";
       },
       isMapShow: false, // 地图选择位置
       dyPoiDis: false, // poi解析禁用
-      actType: [{ id: 1, name: '云剪' }, { id: 2, name: '实探' }, { id: 3, name: '置换' }, { id: 4, name: '摄影师' }],
+      actType: [{ id: 1, name: '云剪' }, { id: 2, name: '实探' }, { id: 3, name: '置换' }, { id: 4, name: '摄影师' }, { id: 5, name: '纯佣' }], // { id: 5, name: '纯佣' }
       value1: [],
       imgUrl: [],
       userList: [],
@@ -292,6 +337,7 @@ import Map from "@/components/Tool/Map.vue";
         type: 1,
         detail: '',
         careful_detail: '',
+        activity_rule: '',
         join_num: 10,
         area: '',
         start_time: '',
@@ -337,6 +383,9 @@ import Map from "@/components/Tool/Map.vue";
         award_rule: [
           { required: true, trigger: 'change', validator: validateAwardRule}
         ],
+        activity_rule: [{
+          required: true, message: '请输入活动规则', trigger: 'blur'
+        }],
         detail: [
           { required: true, message: '请输入任务详情', trigger: 'blur' }
         ],
@@ -443,6 +492,10 @@ import Map from "@/components/Tool/Map.vue";
     changeDetail (e) {
       this.form.detail = e
     },
+    // 活动规则
+    changeRule(e){
+      this.form.activity_rule = e
+    },
     changeCarefulDetail (e) {
      this.form.careful_detail = e
     },
@@ -465,7 +518,7 @@ import Map from "@/components/Tool/Map.vue";
           delete this.form[arr[i]]
         }
       }
-      if(this.form.type===3){ // 置换
+      if([3,5].includes(this.form.type)){ // 置换
         this.form.award_rule[0].money =0
       }
       console.log('this.form', this.form)
