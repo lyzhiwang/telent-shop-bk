@@ -6,7 +6,7 @@
       :table-data="tagList"
       :pagination="pagination"
       :hasSelection="false"
-      :hasSearch="roles<4"
+      :hasSearch="roles<5"
       @changeMultipleSelection="changeSelection"
       @refreshTable="getList"
     >
@@ -96,9 +96,10 @@
       <!-- 操作 -->
       <template v-slot:action="slotProps">
         <div class="btns">
+            <!-- v-if="(oem_info.star_is_auth&&slotProps.scope.row.is_star===0 &&!tabPosition) || (tabPosition&&oem_info.photo_is_auth&&slotProps.scope.row.is_photo_man===0)" -->
         <el-button
           v-has="'UserAudit'"
-          v-if="(oem_info.star_is_auth&&slotProps.scope.row.is_star===0 &&!tabPosition) || (tabPosition&&oem_info.photo_is_auth&&slotProps.scope.row.is_photo_man===0)"
+          v-if="(slotProps.scope.row.is_star===0 &&!tabPosition) || (tabPosition&&slotProps.scope.row.is_photo_man===0)"
           type="warning"
           size="mini"
           @click="auditActivity('UserAudit',slotProps.scope.row)"
@@ -140,11 +141,13 @@ export default {
   },
   created () {
     this.getList()
-    if(this.roles<4){
+    if(this.roles<5){
       this.getUserCount()
-      this.apiBtn('OemConfigShow', { id: this.userId }).then(res => {
-      this.oem_info = res.data
-    })
+    //   this.apiBtn('OemConfigShow', { id: this.userId }).then(res => {
+    //     console.log(res,'res')
+    //   this.oem_info = res.data
+    //   console.log(res.data,'res.data')
+    // })
     }
 
   },
@@ -179,7 +182,9 @@ export default {
           {prop: 'status',label: '状态',width: 150,isCustomize: true}
         ]
       }
-      if(this.roles<4) this.tableHeader.push({prop: 'action',label: '操作',width: 250,isCustomize: true})
+    //   if(this.roles<4) this.tableHeader.push({prop: 'action',label: '操作',width: 250,isCustomize: true})
+    if( [1, 2, 4].includes(this.roles)) this.tableHeader.push({prop: 'action',label: '操作',width: 250,isCustomize: true})
+   
     }
     }
   },
@@ -234,6 +239,7 @@ export default {
     // 达人/摄影师 待审核数量统计
     getUserCount () {
       this.apiBtn('UserCount').then(res => {
+        console.log(res,'res')
         this.userCount = res.data
       })
     },

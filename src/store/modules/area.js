@@ -46,7 +46,6 @@ const actions = {
         commit('SET_LIST', storage)
         resolve()
       } else {
-        console.log('11111')
         apiBtn('AreaIndex')
           .then(res => {
             const list = res.data

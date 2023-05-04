@@ -184,7 +184,6 @@ const actions = {
         // 设置首页所需数据
         try {
           const { admin_revenue, mini_img } = data
-          console.log(111, admin_revenue, mini_img)
           let parame = admin_revenue ? { total: admin_revenue.total, wait_money: admin_revenue.wait_money, withdrew: admin_revenue.withdrew } : {}
           if(mini_img&&mini_img.full_path) parame.mini_qrcode = mini_img.full_path;
           commit('SET_DASHBOARD', parame)

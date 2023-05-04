@@ -3,7 +3,7 @@ module.exports = {
   host: '123.56.68.226',
   port: 22,
   username: 'root',
-  privateKey: require('fs').readFileSync('c:/Users/yanghao/.ssh/id_rsa'),
+  privateKey: require('fs').readFileSync('C:/Users/zwwl/.ssh/id_rsa'),
   path: '/www/wwwroot/kdtd/front'
 }
 
