@@ -107,7 +107,8 @@ const state = {
     PhotomanUpdate: '/cameraman/medias',
     ActivityUrlAudit: '/activity/material',
     PaymentStore: '/funds/payment/create',
-    InviterStore:'/asked/inviter/create'
+    InviterStore:'/asked/inviter/create',
+    CashStore:'/money/cash/create'
   },
   permissionBtnType: {
   }
