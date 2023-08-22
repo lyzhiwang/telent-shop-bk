@@ -9,7 +9,7 @@
         </el-col>
         <el-col :xs="24" :sm="12">
           <div class="login-content">
-            <div class="title">快抖探店管理后台</div>
+            <div class="title">后台管理</div>
             <el-form ref="userInfo" :model="userInfo" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
               <el-form-item prop="username">

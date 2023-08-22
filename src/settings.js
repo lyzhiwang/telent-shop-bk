@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: '快抖探店',
+  title: '后台管理',
 
   /**
    * @type {boolean} true | false

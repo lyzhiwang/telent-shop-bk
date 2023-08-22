@@ -32,8 +32,8 @@ export default {
   created() {
     this.apiBtn('SystemQuery', { name: ['project_name', 'peoject_logo'] })
       .then((res) => {
-        this.title = '快抖探店后台管理' //res.data.project_name
-        this.logo = require('@/assets/login/logo1.png') //res.data.peoject_logo
+        this.title = '后台管理' //res.data.project_name
+        // this.logo = require('@/assets/login/logo1.png') //res.data.peoject_logo
       })
   }
 }
