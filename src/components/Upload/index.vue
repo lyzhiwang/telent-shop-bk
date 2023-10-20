@@ -142,7 +142,6 @@ export default {
     },
     // 删除文件的钩子
     handleRemove (file, fileList) {
-      console.log('file1111111', file)
       this.$emit('remove', file)
     },
     // 自动上传成功的钩子

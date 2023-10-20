@@ -43,7 +43,7 @@
             <p class="tips">*注: 此时间应填写为活动结束前多少小时必须完成任务.</p>
           </el-form-item>
 
-          <el-form-item label="任务区域" prop="area">
+          <!-- <el-form-item label="任务区域" prop="area">
             <el-cascader
               v-model="userArea"
               :options="agentAreaList"
@@ -52,7 +52,7 @@
               @change="changeArea"
               clearable
             />
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="任务报名费用(元)" prop="activity_sing_money" v-if="![3,5].includes(form.type)">
             <el-input-number :min="0" v-model="form.activity_sing_money" :controls="false"></el-input-number>
             <p class="tips">*注: 当为0时表示不收费.大于0表示任务报名费用金额</p>
@@ -206,18 +206,18 @@ import Map from "@/components/Tool/Map.vue";
           this.form.img.push({upload_id:v.id})
         })
 
-      if (this.form.area) {
-        let arr = this.form.area.split(',')
-        let newArr = arr.map(Number)
-        if (newArr.length === 3) {
-          this.userArea.push(newArr)
-        } else {
-          for (let i = 2; i < newArr.length - 2; i++){
-            let arr1 = [newArr[0], newArr[1], newArr[i]]
-            this.userArea.push(arr1)
-          }
-        }
-      }
+    //   if (this.form.area) {
+    //     let arr = this.form.area.split(',')
+    //     let newArr = arr.map(Number)
+    //     if (newArr.length === 3) {
+    //       this.userArea.push(newArr)
+    //     } else {
+    //       for (let i = 2; i < newArr.length - 2; i++){
+    //         let arr1 = [newArr[0], newArr[1], newArr[i]]
+    //         this.userArea.push(arr1)
+    //       }
+    //     }
+    //   }
 
       })
     }
@@ -231,7 +231,7 @@ import Map from "@/components/Tool/Map.vue";
         //     i.disabled = true
         //   })
         // })
-        this.agentAreaList = list
+        // this.agentAreaList = list
       })
     if (this.roles === 4) { // 代理获取商家列表
        this.apiBtn('AdminIndex', {page: 1, size: 1000}).then(res => {
@@ -264,10 +264,10 @@ import Map from "@/components/Tool/Map.vue";
         }
       }else callback()
     }
-    const validateArea = (rule, val, callback) => {
-      if (this.userArea.length === 0) callback(new Error('请设置任务区域'))
-      else callback()
-    }
+    // const validateArea = (rule, val, callback) => {
+    //   if (this.userArea.length === 0) callback(new Error('请设置任务区域'))
+    //   else callback()
+    // }
 
     const validateImg = (rule, val, callback) => {
       if (this.form.img && this.form.img.length === 0) callback(new Error('请上传轮播图'))
@@ -318,14 +318,14 @@ import Map from "@/components/Tool/Map.vue";
             );
           }
         },
-      agentAreaList: [], // 地理位置数据
-      userArea: [],
-      areaProps: {
-        value: 'id',
-        label: 'name',
-        multiple: true
-        // checkStrictly: true
-      },
+    //   agentAreaList: [], // 地理位置数据
+    //   userArea: [],
+    //   areaProps: {
+    //     value: 'id',
+    //     label: 'name',
+    //     multiple: true
+    //     // checkStrictly: true
+    //   },
       isMapShow: false, // 地图选择位置
       dyPoiDis: false, // poi解析禁用
       actType: [{ id: 1, name: '云剪' }, { id: 2, name: '实探' }, { id: 3, name: '置换' }, { id: 4, name: '摄影师' }, { id: 5, name: '纯佣' }], // { id: 5, name: '纯佣' }
@@ -339,7 +339,7 @@ import Map from "@/components/Tool/Map.vue";
         careful_detail: '',
         activity_rule: '',
         join_num: 10,
-        area: '',
+        area: '0',
         start_time: '',
         end_time: '',
         tallest_brokerage: 0, //最高带货佣金
@@ -373,9 +373,6 @@ import Map from "@/components/Tool/Map.vue";
         ],
         date: [
           { required: true, trigger: 'change', validator: validateDate}
-        ],
-        area: [
-          { required: true, trigger: 'change', validator: validateArea}
         ],
         img: [
           {required: true, trigger: 'change', validator: validateImg}
@@ -429,7 +426,6 @@ import Map from "@/components/Tool/Map.vue";
       this.form.shop_name = this.shop_info.shop_name
       this.form.shop_phone = this.shop_info.shop_phone
       this.form.location = this.shop_info.location
-      console.log('this.shop_info', this.shop_info)
       this.form.shop_address = this.shop_info.shop_address
     }
   },
@@ -437,7 +433,6 @@ import Map from "@/components/Tool/Map.vue";
     // 代理切换商家回显商家信息
     changeShop(e){
       const obj = this.userList.find(v=>{ return v.id === e})
-      console.log('obj', obj)
       if(Object.keys(obj).length>0){
         this.form.shop_name = obj.shop_name
         this.form.shop_phone = obj.shop_phone
@@ -482,12 +477,12 @@ import Map from "@/components/Tool/Map.vue";
       this.form[e] = val
      },
     // 选择地区
-    changeArea (e) {
-      let arr = this._.uniq(this._.flattenDeep([...e]))
-      this.form.area = arr.toString()
-      console.log('area', this.form.area)
-      console.log('userArea', this.userArea)
-    },
+    // changeArea (e) {
+    //   let arr = this._.uniq(this._.flattenDeep([...e]))
+    //   this.form.area = arr.toString()
+    //   console.log('area', this.form.area)
+    //   console.log('userArea', this.userArea)
+    // },
     // 详情
     changeDetail (e) {
       this.form.detail = e
@@ -535,7 +530,7 @@ import Map from "@/components/Tool/Map.vue";
         });
     },
     removeSwiper (file) {
-      const fileId = file.response.data.id
+      const fileId = file.id
       const index = this.form.img.findIndex(v => { return v.upload_id === fileId })
       if (index >= 0) {
        this.form.img.splice(index,1)

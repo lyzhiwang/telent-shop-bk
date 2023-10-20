@@ -45,6 +45,7 @@ export default {
           password_confirmation: this.passwordData.passwordConfirmation })
           .then((res) => {
             // 密码修改成功跳转路由重新登录
+            this.$message.success(res.message)
             setTimeout(() => {
               // 跳转到登录 重新登录
               this.$store.dispatch('user/LogOut').then(() => {

@@ -34,9 +34,10 @@ const isDEBUG = false
 axios.defaults.retry = 2
 axios.defaults.retryDelay = 1000
 
+const baseURL = (process.env.NODE_ENV === "development") ? process.env.VUE_APP_BASE_API : "https://apiwrtd.douyintuoke.cn/api/v1"
 // 创建axios实例
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API, // api 的 base_url
+  baseURL, // api 的 base_url
   timeout: 30000, // 请求超时时间
   headers: {
     'X-Requested-With': 'XMLHttpRequest',

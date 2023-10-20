@@ -4,6 +4,7 @@ module.exports = {
   port: 22,
   username: 'root',
   privateKey: require('fs').readFileSync('C:/Users/zwwl/.ssh/id_rsa'),
-  path: '/www/wwwroot/kdtd/front'
+  path: '/www/wwwroot/wrtd'
 }
 
+// path: '/www/wwwroot/kdtd/front'

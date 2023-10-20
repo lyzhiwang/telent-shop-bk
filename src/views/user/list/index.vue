@@ -182,8 +182,8 @@ export default {
           {prop: 'status',label: '状态',width: 150,isCustomize: true}
         ]
       }
-    //   if(this.roles<4) this.tableHeader.push({prop: 'action',label: '操作',width: 250,isCustomize: true})
-    if( [1, 2, 4].includes(this.roles)) this.tableHeader.push({prop: 'action',label: '操作',width: 250,isCustomize: true})
+      if(this.roles<4) this.tableHeader.push({prop: 'action',label: '操作',width: 250,isCustomize: true})
+    //  if( [1, 2, 3].includes(this.roles)) this.tableHeader.push({prop: 'action',label: '操作',width: 250,isCustomize: true})
    
     }
     }
